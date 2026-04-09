@@ -25,9 +25,11 @@ This repository contains a Hexlet учебный проект for a Cal.com-like
 - `make up` — generate `docs/openapi.yaml` and start `frontend` + `api-mock` containers.
 - `make down` — stop local containers.
 - `make logs` — follow container logs.
+- `make ps` — show running dev containers.
+- `make sh-frontend` — open a shell inside the frontend container.
 - `make generate-openapi` — regenerate the OpenAPI spec from TypeSpec.
-- `cd frontend && npm run dev` — run the frontend locally with Vite.
-- `cd frontend && npm run build` — type-check and build the frontend. Use this before opening a PR.
+- Run project commands through `make` targets only. Do not run `npm`, `docker compose`, or other app workflow commands directly from the host shell.
+- If a needed workflow does not have a `make` target yet, add or agree on a `make` target first instead of using the raw command directly.
 
 ## Coding Style & Naming Conventions
 
@@ -40,7 +42,8 @@ This repository contains a Hexlet учебный проект for a Cal.com-like
 ## Testing Guidelines
 
 - There is no dedicated unit test suite in the repository yet.
-- The minimum regression check is `cd frontend && npm run build`.
+- Use `make`-based verification only. Do not use direct host commands like `cd frontend && npm run build`.
+- If a verification step is needed and there is no suitable `make` target yet, add one first or explicitly align on the expected command path.
 - For API/schema changes, also run `make generate-openapi`.
 - If you add tests later, place them next to the feature or under a dedicated `__tests__` directory and use `*.test.ts(x)` naming.
 
