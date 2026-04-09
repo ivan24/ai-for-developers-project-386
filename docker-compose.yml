@@ -1,78 +1,22 @@
 services:
-  tooling:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.frontend
-    working_dir: /workspace
-    command: sh -lc "echo tooling container ready"
-    volumes:
-      - .:/workspace
-      - root-node-modules:/workspace/node_modules
-      - frontend-node-modules:/workspace/frontend/node_modules
-      - api-client-node-modules:/workspace/packages/api-client/node_modules
-      - pnpm-store:/pnpm/store
-    environment:
-      PNPM_HOME: /pnpm
-
   frontend:
     build:
       context: .
-      dockerfile: docker/Dockerfile.frontend
-    working_dir: /workspace
-    command: >-
-      sh -lc "test -d node_modules && test -d frontend/node_modules ||
-      (echo 'Run make install first.' >&2; exit 1);
-      corepack pnpm --dir frontend dev --host 0.0.0.0"
+      dockerfile: docker/frontend/Dockerfile
     ports:
       - "5173:5173"
     volumes:
-      - .:/workspace
-      - root-node-modules:/workspace/node_modules
-      - frontend-node-modules:/workspace/frontend/node_modules
-      - api-client-node-modules:/workspace/packages/api-client/node_modules
-      - pnpm-store:/pnpm/store
-    environment:
-      PNPM_HOME: /pnpm
-      API_PROXY_TARGET: http://api-mock:4010
-      VITE_API_BASE_URL: /api
-    depends_on:
-      api-mock:
-        condition: service_healthy
+      - ./frontend:/app
+      - frontend_node_modules:/app/node_modules
 
   api-mock:
     build:
       context: .
-      dockerfile: docker/Dockerfile.api
-    working_dir: /workspace
-    command: >-
-      sh -lc "test -d node_modules ||
-      (echo 'Run make install first.' >&2; exit 1);
-      corepack pnpm run gen-openapi &&
-      corepack pnpm exec prism mock -h 0.0.0.0 /workspace/generated/openapi/calendar.yaml"
+      dockerfile: docker/api-mock/Dockerfile
     ports:
       - "4010:4010"
     volumes:
-      - .:/workspace
-      - root-node-modules:/workspace/node_modules
-      - frontend-node-modules:/workspace/frontend/node_modules
-      - api-client-node-modules:/workspace/packages/api-client/node_modules
-      - pnpm-store:/pnpm/store
-    environment:
-      PNPM_HOME: /pnpm
-    healthcheck:
-      test:
-        - CMD-SHELL
-        - >-
-          node -e "fetch('http://127.0.0.1:4010/public/event-types')
-          .then((response) => process.exit(response.ok ? 0 : 1))
-          .catch(() => process.exit(1))"
-      interval: 5s
-      timeout: 5s
-      retries: 10
-      start_period: 5s
+      - ./docs:/app/docs
 
 volumes:
-  root-node-modules:
-  frontend-node-modules:
-  api-client-node-modules:
-  pnpm-store:
+  frontend_node_modules:
