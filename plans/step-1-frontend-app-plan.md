@@ -33,7 +33,7 @@
 ## Шаг 3: Слой API (TanStack Query)
 **Задача:** Хуки данных по `calendar.tsp`.
 
-1. Настройка Axios/Fetch к `http://localhost:4010`.
+1. Настройка Axios к `http://localhost:4010`.
 2. Типизация: `EventType`, `Slot`, `Booking`.
 3. Хуки: `usePublicEventTypes`, `useAvailableSlots`, `useCreateBooking`.
 4. Хуки: `useOwnerEventTypes`, `useUpcomingBookings`, `useCancelBooking`.
