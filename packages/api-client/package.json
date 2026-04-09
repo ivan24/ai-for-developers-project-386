@@ -1,0 +1,21 @@
+{
+  "name": "@calendar-booking/api-client",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "tsc --pretty false --noEmit"
+  },
+  "dependencies": {
+    "openapi-fetch": "^0.15.0"
+  },
+  "peerDependencies": {
+    "@tanstack/react-query": "^5.90.5"
+  },
+  "devDependencies": {
+    "typescript": "~6.0.2"
+  }
+}

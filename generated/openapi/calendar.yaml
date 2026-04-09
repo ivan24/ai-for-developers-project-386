@@ -1,0 +1,669 @@
+openapi: 3.0.0
+info:
+  title: Calendar Booking API
+  version: 0.0.0
+tags:
+  - name: Owner
+  - name: Public
+paths:
+  /owner:
+    get:
+      operationId: OwnerApi_getOwner
+      description: Получить профиль владельца календаря.
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Owner'
+      tags:
+        - Owner
+  /owner/bookings:
+    get:
+      operationId: OwnerApi_listUpcomingBookings
+      description: Предстоящие бронирования всех типов событий.
+      parameters:
+        - name: from
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/UtcDateTime'
+          explode: false
+        - name: limit
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/PositiveInt'
+          explode: false
+        - name: offset
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/NonNegativeInt'
+          explode: false
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingListResponse'
+      tags:
+        - Owner
+  /owner/bookings/{bookingId}:
+    get:
+      operationId: OwnerApi_getBookingById
+      description: Получить детали одного бронирования.
+      parameters:
+        - name: bookingId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+        '404':
+          description: The server cannot find the requested resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+      tags:
+        - Owner
+  /owner/bookings/{bookingId}/cancel:
+    post:
+      operationId: OwnerApi_cancelBooking
+      description: Отменить бронирование (владелец).
+      parameters:
+        - name: bookingId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+        '404':
+          description: The server cannot find the requested resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+      tags:
+        - Owner
+  /owner/event-types:
+    post:
+      operationId: OwnerApi_createEventType
+      description: Создать тип события.
+      parameters: []
+      responses:
+        '201':
+          description: The request has succeeded and a new resource has been created as a result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventType'
+        '400':
+          description: The server could not understand the request due to invalid syntax.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+      tags:
+        - Owner
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventTypeCreateInput'
+    get:
+      operationId: OwnerApi_listOwnerEventTypes
+      description: Список типов событий владельца.
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventTypeListResponse'
+      tags:
+        - Owner
+  /owner/event-types/{eventTypeId}:
+    patch:
+      operationId: OwnerApi_updateEventType
+      description: Обновить тип события (partial update).
+      parameters:
+        - name: eventTypeId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventType'
+        '400':
+          description: The server could not understand the request due to invalid syntax.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '404':
+          description: The server cannot find the requested resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+      tags:
+        - Owner
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventTypeUpdateInput'
+  /public/bookings:
+    post:
+      operationId: PublicApi_createBooking
+      description: |-
+        Создать бронирование.
+        endAt вычисляется сервером по durationMinutes выбранного event type.
+        409 если интервал пересекается с существующим бронированием
+        (даже другого типа события).
+      parameters: []
+      responses:
+        '201':
+          description: The request has succeeded and a new resource has been created as a result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GuestBookingCreatedResponse'
+        '400':
+          description: The server could not understand the request due to invalid syntax.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '404':
+          description: The server cannot find the requested resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        '409':
+          description: The request conflicts with the current state of the server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictErrorResponse'
+      tags:
+        - Public
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookingCreateInput'
+  /public/bookings/by-token/{guestCancelToken}:
+    get:
+      operationId: PublicApi_getBookingByGuestToken
+      description: Получить бронирование гостя по токену.
+      parameters:
+        - name: guestCancelToken
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/NonEmptyString'
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GuestBooking'
+        '404':
+          description: The server cannot find the requested resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+      tags:
+        - Public
+  /public/bookings/by-token/{guestCancelToken}/cancel:
+    post:
+      operationId: PublicApi_cancelBookingByGuestToken
+      description: Отменить бронирование гостя по токену.
+      parameters:
+        - name: guestCancelToken
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/NonEmptyString'
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GuestBooking'
+        '404':
+          description: The server cannot find the requested resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+      tags:
+        - Public
+  /public/event-types:
+    get:
+      operationId: PublicApi_listPublicEventTypes
+      description: Публичный список доступных типов событий.
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventTypeListResponse'
+      tags:
+        - Public
+  /public/event-types/{eventTypeId}/slots:
+    get:
+      operationId: PublicApi_listAvailableSlots
+      description: |-
+        Слоты для выбранного типа события в заданном диапазоне.
+        Правило занятости общее для всего календаря.
+        timezone — IANA timezone гостя, используется для группировки слотов по дням.
+      parameters:
+        - name: eventTypeId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: from
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/UtcDateTime'
+          explode: false
+        - name: to
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/UtcDateTime'
+          explode: false
+        - name: timezone
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/NonEmptyString'
+          explode: false
+        - name: limit
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/PositiveInt'
+          explode: false
+        - name: offset
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/NonNegativeInt'
+          explode: false
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SlotListResponse'
+        '400':
+          description: The server could not understand the request due to invalid syntax.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '404':
+          description: The server cannot find the requested resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+      tags:
+        - Public
+components:
+  schemas:
+    Booking:
+      type: object
+      required:
+        - id
+        - eventTypeId
+        - eventTypeName
+        - startAt
+        - endAt
+        - guestName
+        - guestEmail
+        - createdAt
+        - status
+      properties:
+        id:
+          type: string
+        eventTypeId:
+          type: string
+        eventTypeName:
+          $ref: '#/components/schemas/NonEmptyString'
+        startAt:
+          $ref: '#/components/schemas/UtcDateTime'
+        endAt:
+          $ref: '#/components/schemas/UtcDateTime'
+        guestName:
+          $ref: '#/components/schemas/NonEmptyString'
+        guestEmail:
+          $ref: '#/components/schemas/NonEmptyString'
+        createdAt:
+          $ref: '#/components/schemas/UtcDateTime'
+        status:
+          type: string
+          enum:
+            - active
+            - cancelled
+    BookingConflictRuleDoc:
+      type: object
+      description: |-
+        Правило занятости слота:
+
+        Нельзя создать два активных бронирования на пересекающиеся интервалы,
+        даже если они относятся к разным типам событий.
+
+        Конфликт определяется как:
+          existing.startAt < new.endAt AND existing.endAt > new.startAt
+
+        Примеры:
+          10:00–10:30 и 10:00–10:30 → конфликт
+          10:00–10:30 и 10:15–10:45 → конфликт
+          10:00–10:30 и 10:30–11:00 → допустимо (смежные, не пересекаются)
+
+        При проверке конфликтов учитываются только бронирования со статусом "active".
+    BookingCreateInput:
+      type: object
+      required:
+        - eventTypeId
+        - startAt
+        - guestName
+        - guestEmail
+      properties:
+        eventTypeId:
+          type: string
+        startAt:
+          $ref: '#/components/schemas/UtcDateTime'
+        guestName:
+          $ref: '#/components/schemas/NonEmptyString'
+        guestEmail:
+          $ref: '#/components/schemas/NonEmptyString'
+    BookingEndAtComputationDoc:
+      type: object
+      description: |-
+        Правило вычисления endAt:
+
+        Клиент передает только startAt и eventTypeId.
+        Сервер обязан:
+          1. загрузить EventType,
+          2. взять durationMinutes,
+          3. вычислить endAt = startAt + durationMinutes.
+
+        Клиент не может передавать endAt при создании бронирования.
+    BookingListResponse:
+      type: object
+      required:
+        - items
+        - meta
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Booking'
+        meta:
+          $ref: '#/components/schemas/PaginatedMeta'
+    ConflictErrorResponse:
+      type: object
+      required:
+        - code
+      properties:
+        code:
+          type: string
+          enum:
+            - slot_conflict
+      allOf:
+        - $ref: '#/components/schemas/ErrorResponse'
+    ErrorResponse:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          $ref: '#/components/schemas/NonEmptyString'
+        message:
+          $ref: '#/components/schemas/NonEmptyString'
+    EventType:
+      type: object
+      required:
+        - id
+        - name
+        - durationMinutes
+      properties:
+        id:
+          type: string
+        name:
+          $ref: '#/components/schemas/NonEmptyString'
+        description:
+          type: string
+        durationMinutes:
+          $ref: '#/components/schemas/PositiveInt'
+    EventTypeCreateInput:
+      type: object
+      required:
+        - name
+        - durationMinutes
+      properties:
+        name:
+          $ref: '#/components/schemas/NonEmptyString'
+        description:
+          type: string
+        durationMinutes:
+          $ref: '#/components/schemas/PositiveInt'
+    EventTypeListResponse:
+      type: object
+      required:
+        - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/EventType'
+    EventTypeUpdateInput:
+      type: object
+      properties:
+        name:
+          $ref: '#/components/schemas/NonEmptyString'
+        description:
+          type: string
+        durationMinutes:
+          $ref: '#/components/schemas/PositiveInt'
+    GuestBooking:
+      type: object
+      required:
+        - id
+        - eventTypeId
+        - eventTypeName
+        - startAt
+        - endAt
+        - guestName
+        - guestEmail
+        - createdAt
+        - status
+        - guestCancelToken
+      properties:
+        id:
+          type: string
+        eventTypeId:
+          type: string
+        eventTypeName:
+          $ref: '#/components/schemas/NonEmptyString'
+        startAt:
+          $ref: '#/components/schemas/UtcDateTime'
+        endAt:
+          $ref: '#/components/schemas/UtcDateTime'
+        guestName:
+          $ref: '#/components/schemas/NonEmptyString'
+        guestEmail:
+          $ref: '#/components/schemas/NonEmptyString'
+        createdAt:
+          $ref: '#/components/schemas/UtcDateTime'
+        status:
+          type: string
+          enum:
+            - active
+            - cancelled
+        guestCancelToken:
+          $ref: '#/components/schemas/NonEmptyString'
+    GuestBookingCreatedResponse:
+      type: object
+      required:
+        - booking
+      properties:
+        booking:
+          $ref: '#/components/schemas/GuestBooking'
+    GuestCancelTokenRuleDoc:
+      type: object
+      description: |-
+        Правило гостевого доступа:
+
+        Для каждого созданного бронирования сервер генерирует guestCancelToken.
+
+        Токен позволяет гостю:
+          - получить свое бронирование,
+          - отменить свое бронирование,
+
+        без регистрации и авторизации.
+
+        В рамках учебного проекта guestCancelToken может возвращаться
+        прямо в ответе на создание бронирования.
+    NonEmptyString:
+      type: string
+      minLength: 1
+    NonNegativeInt:
+      type: integer
+      format: int32
+      minimum: 0
+    NotFoundErrorResponse:
+      type: object
+      required:
+        - code
+      properties:
+        code:
+          type: string
+          enum:
+            - not_found
+      allOf:
+        - $ref: '#/components/schemas/ErrorResponse'
+    Owner:
+      type: object
+      required:
+        - id
+        - name
+        - timezone
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        timezone:
+          $ref: '#/components/schemas/NonEmptyString'
+    PaginatedMeta:
+      type: object
+      required:
+        - total
+        - limit
+        - offset
+      properties:
+        total:
+          $ref: '#/components/schemas/NonNegativeInt'
+        limit:
+          $ref: '#/components/schemas/PositiveInt'
+        offset:
+          $ref: '#/components/schemas/NonNegativeInt'
+    PaginationParams:
+      type: object
+      properties:
+        limit:
+          $ref: '#/components/schemas/PositiveInt'
+        offset:
+          $ref: '#/components/schemas/NonNegativeInt'
+    PositiveInt:
+      type: integer
+      format: int32
+      minimum: 1
+    Slot:
+      type: object
+      required:
+        - eventTypeId
+        - startAt
+        - endAt
+        - isAvailable
+      properties:
+        eventTypeId:
+          type: string
+        startAt:
+          $ref: '#/components/schemas/UtcDateTime'
+        endAt:
+          $ref: '#/components/schemas/UtcDateTime'
+        isAvailable:
+          type: boolean
+    SlotListResponse:
+      type: object
+      required:
+        - items
+        - meta
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Slot'
+        meta:
+          $ref: '#/components/schemas/PaginatedMeta'
+    UtcDateTime:
+      type: string
+      format: date-time
+    ValidationErrorResponse:
+      type: object
+      required:
+        - code
+      properties:
+        code:
+          type: string
+          enum:
+            - validation_error
+      allOf:
+        - $ref: '#/components/schemas/ErrorResponse'
+servers:
+  - url: https://api.example.com
+    description: Production server
+    variables: {}

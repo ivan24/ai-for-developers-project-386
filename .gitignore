@@ -1,0 +1,9 @@
+node_modules/
+.pnpm-store/
+frontend/node_modules/
+frontend/dist/
+dist/
+coverage/
+.generated/
+.generated-cache/
+.DS_Store
