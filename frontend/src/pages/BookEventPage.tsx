@@ -5,6 +5,7 @@ import {
   Card,
   Grid,
   Group,
+  Paper,
   Stack,
   Stepper,
   Text,
@@ -173,7 +174,7 @@ export const BookEventPage = () => {
       <ErrorState
         message="The requested event type was not found."
         action={
-          <Button component={Link} to="/" radius="xl" color="dark">
+          <Button component={Link} to="/">
             Back to event types
           </Button>
         }
@@ -185,33 +186,36 @@ export const BookEventPage = () => {
 
   return (
     <Stack gap="xl">
-      <Card className="surface-card accent-card" padding="xl" radius="xl">
+      <Paper className="surface-card page-hero" p="xl">
         <Stack gap="md">
           <Group justify="space-between" align="start">
             <div>
               <Text className="section-kicker">Guest booking</Text>
               <Title order={1}>{selectedEventType.name}</Title>
             </div>
-            <Badge variant="light" color="amber" radius="xl" size="lg">
+            <Badge color="indigo" size="lg">
               {formatDuration(selectedEventType.durationMinutes)}
             </Badge>
           </Group>
           <Text c="dimmed">
             {selectedEventType.description || "No description provided yet."}
           </Text>
+          <Text c="dimmed" fz="sm">
+            Pick a date, choose an available slot, and confirm the booking without extra UI noise.
+          </Text>
         </Stack>
-      </Card>
+      </Paper>
 
-      <Grid gutter="xl" align="start">
+      <Grid gap="xl" align="start">
         <Grid.Col span={{ base: 12, xl: 8 }}>
-          <Card className="surface-card" padding="xl" radius="xl">
+          <Card className="surface-card booking-stepper">
             <Stack gap="xl">
               <Stepper
                 active={activeStep}
                 onStepClick={setActiveStep}
                 allowNextStepsSelect={false}
                 orientation={isMobile ? "vertical" : "horizontal"}
-                color="dark"
+                color="indigo"
                 iconSize={42}
                 styles={{
                   separator: {
@@ -239,7 +243,7 @@ export const BookEventPage = () => {
                       size="md"
                     />
 
-                    <Alert color="blue" radius="xl" title="Selected day">
+                    <Alert color="indigo" title="Selected day">
                       {selectedDateLabel}
                     </Alert>
                   </Stack>
@@ -259,23 +263,23 @@ export const BookEventPage = () => {
                       <ErrorState message="Slots are unavailable for the selected date." />
                     ) : null}
                     {!slotsQuery.isLoading && !slotsQuery.isError && slots.length === 0 ? (
-                      <Alert color="amber" radius="xl" title="No slots available">
+                      <Alert color="yellow" title="No slots available">
                         There are no free slots for this day. Pick another date.
                       </Alert>
                     ) : null}
                     {!slotsQuery.isLoading &&
                     !slotsQuery.isError &&
                     slots.length > 0 ? (
-                      <Grid gutter="sm">
+                      <Grid gap="sm">
                         {slots.map((slot) => (
                           <Grid.Col key={`${slot.startAt}-${slot.endAt}`} span={{ base: 12, xs: 6, md: 4 }}>
                             <Button
                               fullWidth
+                              className="slot-button"
                               variant={
                                 selectedSlot?.startAt === slot.startAt ? "filled" : "light"
                               }
-                              color={slot.isAvailable ? "dark" : "gray"}
-                              radius="xl"
+                              color={slot.isAvailable ? "indigo" : "gray"}
                               disabled={!slot.isAvailable}
                               onClick={() => handleSlotSelect(slot)}
                             >
@@ -287,7 +291,7 @@ export const BookEventPage = () => {
                     ) : null}
 
                     {selectedSlot ? (
-                      <Alert color="teal" radius="xl" title="Selected slot">
+                      <Alert color="teal" title="Selected slot">
                         {formatDateTime(selectedSlot.startAt)} -{" "}
                         {formatTime(selectedSlot.endAt)}
                       </Alert>
@@ -307,24 +311,22 @@ export const BookEventPage = () => {
                     <TextInput
                       label="Guest name"
                       placeholder="Ada Lovelace"
-                      radius="md"
                       {...form.getInputProps("guestName")}
                     />
                     <TextInput
                       label="Guest email"
                       type="email"
                       placeholder="ada@example.com"
-                      radius="md"
                       {...form.getInputProps("guestEmail")}
                     />
 
                     {selectedSlot ? (
-                      <Alert color="amber" radius="xl" title="Booking summary">
+                      <Alert color="indigo" title="Booking summary">
                         {formatDateTime(selectedSlot.startAt)} -{" "}
                         {formatTime(selectedSlot.endAt)}
                       </Alert>
                     ) : (
-                      <Alert color="blue" radius="xl" title="No slot selected">
+                      <Alert color="gray" title="No slot selected">
                         Go back to the previous step and choose a slot first.
                       </Alert>
                     )}
@@ -333,7 +335,7 @@ export const BookEventPage = () => {
 
                 <Stepper.Completed>
                   <Stack gap="lg" pt="xl">
-                    <Alert color="teal" radius="xl" title="Booking confirmed">
+                    <Alert color="teal" title="Booking confirmed">
                       {createdBooking ? (
                         <>
                           {createdBooking.guestName}, your booking is set for{" "}
@@ -347,8 +349,6 @@ export const BookEventPage = () => {
 
                     <Group>
                       <Button
-                        radius="xl"
-                        color="dark"
                         onClick={() => {
                           setCreatedBooking(null);
                           setSelectedSlot(null);
@@ -361,8 +361,6 @@ export const BookEventPage = () => {
                         component={Link}
                         to="/"
                         variant="light"
-                        radius="xl"
-                        color="dark"
                       >
                         Back to event types
                       </Button>
@@ -375,7 +373,6 @@ export const BookEventPage = () => {
                 <Group justify="space-between">
                   <Button
                     variant="default"
-                    radius="xl"
                     disabled={activeStep === 0}
                     onClick={() => setActiveStep((current) => Math.max(current - 1, 0))}
                   >
@@ -383,14 +380,12 @@ export const BookEventPage = () => {
                   </Button>
 
                   {activeStep === 0 ? (
-                    <Button radius="xl" color="dark" onClick={handleNextFromDate}>
+                    <Button onClick={handleNextFromDate}>
                       Continue to slots
                     </Button>
                   ) : null}
                   {activeStep === 1 ? (
                     <Button
-                      radius="xl"
-                      color="dark"
                       disabled={!canContinueFromSlot}
                       onClick={handleNextFromSlot}
                     >
@@ -399,8 +394,6 @@ export const BookEventPage = () => {
                   ) : null}
                   {activeStep === 2 ? (
                     <Button
-                      radius="xl"
-                      color="dark"
                       loading={createBookingMutation.isPending}
                       disabled={!canSubmit}
                       onClick={handleCreateBooking}
@@ -415,7 +408,7 @@ export const BookEventPage = () => {
         </Grid.Col>
 
         <Grid.Col span={{ base: 12, xl: 4 }}>
-          <Card className="surface-card booking-summary-card" padding="xl" radius="xl">
+          <Card className="surface-card booking-summary-card">
             <Stack gap="lg">
               <div>
                 <Text className="section-kicker">Booking progress</Text>
@@ -429,7 +422,7 @@ export const BookEventPage = () => {
 
               <Group justify="space-between">
                 <Text fw={700}>Duration</Text>
-                <Badge variant="light" color="dark" radius="xl">
+                <Badge color="indigo">
                   {formatDuration(selectedEventType.durationMinutes)}
                 </Badge>
               </Group>
@@ -449,8 +442,7 @@ export const BookEventPage = () => {
               </Stack>
 
               <Alert
-                color={createdBooking ? "teal" : selectedSlot ? "amber" : "blue"}
-                radius="xl"
+                color={createdBooking ? "teal" : selectedSlot ? "indigo" : "gray"}
                 title={createdBooking ? "Ready" : selectedSlot ? "Almost there" : "Next step"}
               >
                 {createdBooking
@@ -460,7 +452,7 @@ export const BookEventPage = () => {
                     : "Choose a date and then select one of the available slots."}
               </Alert>
 
-              <Button component={Link} to="/" variant="subtle" color="dark" radius="xl">
+              <Button component={Link} to="/" variant="subtle">
                 Back to event types
               </Button>
             </Stack>

@@ -1,13 +1,7 @@
 :root {
-  color: #10243b;
-  background:
-    radial-gradient(circle at top left, rgba(252, 211, 77, 0.34), transparent 22%),
-    radial-gradient(circle at top right, rgba(147, 197, 253, 0.28), transparent 26%),
-    linear-gradient(160deg, #f7f4ec 0%, #f3efe5 42%, #e6edf5 100%);
-  font-family:
-    "Avenir Next",
-    "Segoe UI",
-    sans-serif;
+  color: #16253d;
+  background-color: #eef3f9;
+  font-family: "Manrope", "Avenir Next", "Segoe UI", sans-serif;
   line-height: 1.5;
   font-weight: 400;
   text-rendering: optimizeLegibility;
@@ -26,10 +20,10 @@ body {
   min-width: 320px;
   min-height: 100vh;
   background:
-    radial-gradient(circle at top left, rgba(252, 211, 77, 0.34), transparent 22%),
-    radial-gradient(circle at top right, rgba(147, 197, 253, 0.28), transparent 26%),
-    linear-gradient(160deg, #f7f4ec 0%, #f3efe5 42%, #e6edf5 100%);
-  color: #10243b;
+    radial-gradient(circle at top left, rgba(67, 97, 238, 0.14), transparent 24%),
+    radial-gradient(circle at top right, rgba(13, 148, 136, 0.1), transparent 20%),
+    linear-gradient(180deg, #f7f9fc 0%, #eef3f9 100%);
+  color: #16253d;
 }
 
 body::before {
@@ -38,10 +32,10 @@ body::before {
   inset: 0;
   pointer-events: none;
   background-image:
-    linear-gradient(rgba(16, 36, 59, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(16, 36, 59, 0.03) 1px, transparent 1px);
-  background-size: 24px 24px;
-  mask-image: radial-gradient(circle at center, black 45%, transparent 85%);
+    linear-gradient(rgba(22, 37, 61, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(22, 37, 61, 0.03) 1px, transparent 1px);
+  background-size: 36px 36px;
+  mask-image: linear-gradient(180deg, black 10%, transparent 100%);
 }
 
 #root {
@@ -54,46 +48,90 @@ a {
 }
 
 .shell-header {
-  background: rgba(255, 250, 241, 0.88);
+  background: rgba(247, 250, 252, 0.86);
   backdrop-filter: blur(14px);
-  border-bottom: 1px solid rgba(16, 36, 59, 0.08);
+  border-bottom: 1px solid rgba(22, 37, 61, 0.08);
 }
 
 .shell-navbar {
-  background: rgba(255, 250, 241, 0.82);
-  border-inline-end: 1px solid rgba(16, 36, 59, 0.08);
+  background: rgba(247, 250, 252, 0.95);
+  border-inline-end: 1px solid rgba(22, 37, 61, 0.08);
 }
 
 .brand-kicker,
 .section-kicker {
   margin: 0;
-  color: #a16207;
-  font-size: 0.78rem;
+  color: #4f5f79;
+  font-size: 0.72rem;
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
 }
 
 .brand-title {
   line-height: 1;
+  letter-spacing: -0.04em;
 }
 
 .surface-card {
-  border: 1px solid rgba(16, 36, 59, 0.08);
-  background: rgba(255, 255, 255, 0.8);
-  box-shadow: 0 22px 60px rgba(16, 36, 59, 0.08);
-  backdrop-filter: blur(10px);
+  border: 1px solid rgba(22, 37, 61, 0.08);
+  background: rgba(255, 255, 255, 0.84);
+  box-shadow: 0 18px 48px rgba(22, 37, 61, 0.08);
+  backdrop-filter: blur(12px);
 }
 
-.accent-card {
+.accent-card,
+.page-hero {
   background:
-    radial-gradient(circle at top right, rgba(245, 191, 29, 0.2), transparent 30%),
-    linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(253, 246, 214, 0.9));
+    radial-gradient(circle at top right, rgba(67, 97, 238, 0.18), transparent 28%),
+    radial-gradient(circle at bottom left, rgba(13, 148, 136, 0.1), transparent 24%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(245, 248, 255, 0.9));
 }
 
 .booking-summary-card {
   position: sticky;
-  top: 108px;
+  top: 96px;
+}
+
+.page-shell {
+  padding-top: clamp(1.5rem, 3vw, 2.5rem);
+  padding-bottom: 3rem;
+}
+
+.hero-copy {
+  max-width: 38rem;
+}
+
+.metric-card {
+  border: 1px solid rgba(22, 37, 61, 0.08);
+  background: rgba(246, 248, 252, 0.88);
+}
+
+.metric-value {
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.05em;
+}
+
+.muted-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #66758b;
+}
+
+.booking-stepper {
+  overflow: hidden;
+}
+
+.slot-button {
+  justify-content: space-between;
+}
+
+.empty-state {
+  text-align: center;
 }
 
 @media (max-width: 75em) {

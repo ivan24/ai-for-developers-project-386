@@ -1,6 +1,16 @@
 import {
+  Alert,
+  Badge,
+  Button,
+  Card,
   MantineProvider,
+  Modal,
+  NumberInput,
+  Paper,
+  TextInput,
+  Textarea,
   createTheme,
+  v8CssVariablesResolver,
 } from "@mantine/core";
 import { DatesProvider } from "@mantine/dates";
 import { Notifications } from "@mantine/notifications";
@@ -20,34 +30,75 @@ const queryClient = new QueryClient({
 });
 
 const theme = createTheme({
-  primaryColor: "amber",
-  defaultRadius: "xl",
-  fontFamily: "Avenir Next, Segoe UI, sans-serif",
+  primaryColor: "indigo",
+  defaultRadius: "lg",
+  fontFamily: "Manrope, Avenir Next, Segoe UI, sans-serif",
   headings: {
-    fontFamily: "Georgia, Times New Roman, serif",
+    fontFamily: "Manrope, Avenir Next, Segoe UI, sans-serif",
   },
-  colors: {
-    amber: [
-      "#fff6df",
-      "#fce9b0",
-      "#f9da7d",
-      "#f7cc49",
-      "#f5bf1d",
-      "#dca508",
-      "#ad8103",
-      "#7e5d00",
-      "#4f3900",
-      "#241700",
-    ],
+  components: {
+    Alert: Alert.extend({
+      defaultProps: {
+        radius: "lg",
+        variant: "light",
+      },
+    }),
+    Badge: Badge.extend({
+      defaultProps: {
+        radius: "sm",
+        variant: "light",
+      },
+    }),
+    Button: Button.extend({
+      defaultProps: {
+        radius: "md",
+      },
+    }),
+    Card: Card.extend({
+      defaultProps: {
+        radius: "xl",
+        padding: "xl",
+      },
+    }),
+    Modal: Modal.extend({
+      defaultProps: {
+        centered: true,
+        radius: "xl",
+      },
+    }),
+    NumberInput: NumberInput.extend({
+      defaultProps: {
+        radius: "md",
+      },
+    }),
+    Paper: Paper.extend({
+      defaultProps: {
+        radius: "xl",
+      },
+    }),
+    TextInput: TextInput.extend({
+      defaultProps: {
+        radius: "md",
+      },
+    }),
+    Textarea: Textarea.extend({
+      defaultProps: {
+        radius: "md",
+      },
+    }),
   },
 });
 
 export const AppProviders = ({ children }: PropsWithChildren) => {
   return (
     <QueryClientProvider client={queryClient}>
-      <MantineProvider theme={theme} defaultColorScheme="light">
+      <MantineProvider
+        theme={theme}
+        defaultColorScheme="light"
+        cssVariablesResolver={v8CssVariablesResolver}
+      >
         <DatesProvider settings={{ firstDayOfWeek: 1 }}>
-          <Notifications position="top-right" />
+          <Notifications position="top-right" pauseResetOnHover="notification" />
           {children}
         </DatesProvider>
       </MantineProvider>

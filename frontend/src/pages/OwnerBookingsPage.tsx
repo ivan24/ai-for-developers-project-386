@@ -3,6 +3,8 @@ import {
   Button,
   Card,
   Group,
+  Paper,
+  SimpleGrid,
   Stack,
   Text,
   Title,
@@ -48,74 +50,106 @@ export const OwnerBookingsPage = () => {
 
   return (
     <Stack gap="xl">
-      <div>
-        <Text className="section-kicker">Owner dashboard</Text>
-        <Title order={1}>Upcoming bookings</Title>
-        <Text c="dimmed" mt={6}>
-          Review all meetings across event types and cancel individual bookings
-          when plans change.
-        </Text>
-      </div>
+      <Paper className="surface-card page-hero" p="xl">
+        <Stack gap="sm">
+          <Text className="section-kicker">Owner dashboard</Text>
+          <Title order={1}>Upcoming bookings</Title>
+          <Text c="dimmed" maw={620}>
+            Review scheduled meetings across event types and cancel individual bookings
+            when plans change.
+          </Text>
+        </Stack>
+      </Paper>
 
-      <Stack gap="md">
-        {bookings.map((booking) => (
-          <Card key={booking.id} className="surface-card" padding="xl" radius="xl">
-            <Stack gap="md">
-              <Group justify="space-between" align="start">
-                <Stack gap={4}>
-                  <Text fw={700} size="lg">
-                    {booking.eventTypeName}
-                  </Text>
-                  <Text c="dimmed">
-                    {booking.guestName} · {booking.guestEmail}
-                  </Text>
-                </Stack>
-                <Badge
-                  variant="light"
-                  color={booking.status === "active" ? "teal" : "gray"}
-                  radius="xl"
-                >
-                  {booking.status}
-                </Badge>
-              </Group>
+      <SimpleGrid cols={{ base: 1, md: 3 }}>
+        <Card className="metric-card">
+          <Text className="muted-label">Upcoming</Text>
+          <Text className="metric-value">{bookings.length}</Text>
+          <Text c="dimmed" fz="sm">
+            visible bookings in queue
+          </Text>
+        </Card>
+        <Card className="metric-card">
+          <Text className="muted-label">Status</Text>
+          <Text className="metric-value">Live</Text>
+          <Text c="dimmed" fz="sm">
+            active meetings can be cancelled
+          </Text>
+        </Card>
+        <Card className="metric-card">
+          <Text className="muted-label">Scope</Text>
+          <Text className="metric-value">All</Text>
+          <Text c="dimmed" fz="sm">
+            events aggregated in one list
+          </Text>
+        </Card>
+      </SimpleGrid>
 
-              <Group gap="xl">
-                <div>
+      {bookings.length === 0 ? (
+        <Paper className="surface-card empty-state" p="xl">
+          <Stack gap="sm" align="center">
+            <Title order={3}>No upcoming bookings</Title>
+            <Text c="dimmed" maw={420}>
+              Once a guest schedules a meeting, it will show up here with timing and status.
+            </Text>
+          </Stack>
+        </Paper>
+      ) : (
+        <Stack gap="md">
+          {bookings.map((booking) => (
+            <Card key={booking.id} className="surface-card">
+              <Stack gap="md">
+                <Group justify="space-between" align="start">
+                  <Stack gap={4}>
+                    <Text fw={700} size="lg">
+                      {booking.eventTypeName}
+                    </Text>
+                    <Text c="dimmed">
+                      {booking.guestName} · {booking.guestEmail}
+                    </Text>
+                  </Stack>
+                  <Badge color={booking.status === "active" ? "teal" : "gray"}>
+                    {booking.status}
+                  </Badge>
+                </Group>
+
+                <Group gap="xl">
+                  <div>
+                    <Text fz="sm" c="dimmed">
+                      Starts
+                    </Text>
+                    <Text fw={600}>{formatDateTime(booking.startAt)}</Text>
+                  </div>
+                  <div>
+                    <Text fz="sm" c="dimmed">
+                      Ends
+                    </Text>
+                    <Text fw={600}>{formatDateTime(booking.endAt)}</Text>
+                  </div>
+                </Group>
+
+                <Group justify="space-between" align="center">
                   <Text fz="sm" c="dimmed">
-                    Starts
+                    Booking ID: {booking.id}
                   </Text>
-                  <Text fw={600}>{formatDateTime(booking.startAt)}</Text>
-                </div>
-                <div>
-                  <Text fz="sm" c="dimmed">
-                    Ends
-                  </Text>
-                  <Text fw={600}>{formatDateTime(booking.endAt)}</Text>
-                </div>
-              </Group>
-
-              <Group justify="space-between" align="center">
-                <Text fz="sm" c="dimmed">
-                  Booking ID: {booking.id}
-                </Text>
-                <Button
-                  radius="xl"
-                  color="red"
-                  variant="light"
-                  disabled={booking.status !== "active"}
-                  loading={
-                    cancelBookingMutation.isPending &&
-                    cancelBookingMutation.variables === booking.id
-                  }
-                  onClick={() => handleCancel(booking.id)}
-                >
-                  Cancel booking
-                </Button>
-              </Group>
-            </Stack>
-          </Card>
-        ))}
-      </Stack>
+                  <Button
+                    color="red"
+                    variant="light"
+                    disabled={booking.status !== "active"}
+                    loading={
+                      cancelBookingMutation.isPending &&
+                      cancelBookingMutation.variables === booking.id
+                    }
+                    onClick={() => handleCancel(booking.id)}
+                  >
+                    Cancel booking
+                  </Button>
+                </Group>
+              </Stack>
+            </Card>
+          ))}
+        </Stack>
+      )}
     </Stack>
   );
 };
