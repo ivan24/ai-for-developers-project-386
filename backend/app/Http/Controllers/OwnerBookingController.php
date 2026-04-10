@@ -11,9 +11,7 @@ class OwnerBookingController extends Controller
 {
     use SerializesApiResources;
 
-    public function __construct(private readonly BookingService $bookings)
-    {
-    }
+    public function __construct(private readonly BookingService $bookings) {}
 
     public function index(ListBookingsRequest $request): JsonResponse
     {

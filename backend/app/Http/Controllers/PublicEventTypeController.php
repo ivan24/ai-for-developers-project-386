@@ -15,8 +15,7 @@ class PublicEventTypeController extends Controller
     public function __construct(
         private readonly EventTypeService $eventTypes,
         private readonly BookingService $bookings,
-    ) {
-    }
+    ) {}
 
     public function index(): JsonResponse
     {

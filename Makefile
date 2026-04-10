@@ -8,7 +8,7 @@ OPENAPI_GENERATOR_IMAGE := $(PROJECT_NAME)-openapi-generator
 HOST_UID                := $(shell id -u)
 HOST_GID                := $(shell id -g)
 
-.PHONY: help generate-openapi up down logs ps frontend-install backend-install backend-composer-refresh backend-composer-update backend-key migrate seed migrate-seed backend-test infra-check sh-frontend sh-backend
+.PHONY: help generate-openapi up down logs ps frontend-install backend-install backend-composer-refresh backend-composer-update backend-key migrate seed migrate-seed backend-test backend-lint backend-lint-fix backend-analyse backend-qa infra-check sh-frontend sh-backend
 
 ##@ OpenAPI
 
@@ -64,6 +64,17 @@ migrate-seed: ## Refresh the database and seed demo data inside the backend cont
 
 backend-test: ## Run backend test suite inside the backend container
 	$(DOCKER_EXEC) backend php artisan test --without-tty
+
+backend-lint: ## Check backend formatting with Pint
+	$(DOCKER_EXEC) backend ./vendor/bin/pint --test
+
+backend-lint-fix: ## Fix backend formatting with Pint
+	$(DOCKER_EXEC) backend ./vendor/bin/pint
+
+backend-analyse: ## Run Larastan static analysis inside the backend container
+	$(DOCKER_EXEC) backend ./vendor/bin/phpstan analyse --memory-limit=512M
+
+backend-qa: backend-lint backend-analyse backend-test ## Run backend QA checks
 
 infra-check: ## Run a basic infrastructure smoke test
 	$(DOCKER_EXEC) db pg_isready -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"

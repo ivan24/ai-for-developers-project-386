@@ -9,9 +9,7 @@ use Illuminate\Support\Collection;
 
 class EventTypeService
 {
-    public function __construct(private readonly EventTypeRepository $eventTypes)
-    {
-    }
+    public function __construct(private readonly EventTypeRepository $eventTypes) {}
 
     public function create(array $input): EventType
     {

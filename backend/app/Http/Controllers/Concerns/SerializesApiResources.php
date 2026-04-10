@@ -32,7 +32,7 @@ trait SerializesApiResources
         return [
             'id' => $booking->id,
             'eventTypeId' => $booking->event_type_id,
-            'eventTypeName' => $booking->eventType?->name ?? '',
+            'eventTypeName' => $booking->eventType->name,
             'startAt' => $booking->start_at->toIso8601String(),
             'endAt' => $booking->end_at->toIso8601String(),
             'guestName' => $booking->guest_name,

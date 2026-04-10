@@ -11,9 +11,7 @@ class PublicBookingController extends Controller
 {
     use SerializesApiResources;
 
-    public function __construct(private readonly BookingService $bookings)
-    {
-    }
+    public function __construct(private readonly BookingService $bookings) {}
 
     public function store(CreateBookingRequest $request): JsonResponse
     {

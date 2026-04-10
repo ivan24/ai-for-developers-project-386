@@ -8,9 +8,7 @@ use App\Repositories\OwnerRepository;
 
 class OwnerService
 {
-    public function __construct(private readonly OwnerRepository $owners)
-    {
-    }
+    public function __construct(private readonly OwnerRepository $owners) {}
 
     public function getProfile(): Owner
     {

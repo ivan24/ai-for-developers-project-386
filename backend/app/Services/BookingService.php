@@ -22,15 +22,15 @@ class BookingService
         private readonly BookingRepository $bookings,
         private readonly EventTypeRepository $eventTypes,
         private readonly OwnerRepository $owners,
-    ) {
-    }
+    ) {}
 
     /**
+     * @param  array{from?: string|null, limit?: int|string|null, offset?: int|string|null}  $input
      * @return array{items: Collection<int, Booking>, total: int, limit: int, offset: int}
      */
     public function listUpcoming(array $input): array
     {
-        $from = isset($input['from']) && $input['from'] !== null
+        $from = isset($input['from'])
             ? CarbonImmutable::parse($input['from'])->utc()
             : CarbonImmutable::now('UTC');
 
@@ -63,6 +63,7 @@ class BookingService
     }
 
     /**
+     * @param  array{from: string, to: string, timezone?: string|null, limit?: int|string|null, offset?: int|string|null}  $input
      * @return array{items: array<int, array{eventTypeId: string, startAt: string, endAt: string, isAvailable: bool}>, total: int, limit: int, offset: int}
      */
     public function listAvailableSlots(string $eventTypeId, array $input): array
@@ -87,6 +88,9 @@ class BookingService
         ];
     }
 
+    /**
+     * @param  array{eventTypeId: string, startAt: string, guestName: string, guestEmail: string}  $input
+     */
     public function create(array $input): Booking
     {
         $eventType = $this->requireEventType((string) $input['eventTypeId']);
@@ -95,7 +99,7 @@ class BookingService
 
         return DB::transaction(function () use ($input, $eventType, $startAt, $endAt): Booking {
             if ($this->bookings->hasActiveConflict($startAt, $endAt)) {
-                throw new SlotConflictException();
+                throw new SlotConflictException;
             }
 
             return $this->bookings->create([
@@ -121,7 +125,7 @@ class BookingService
     }
 
     /**
-     * @param Collection<int, Booking> $windowBookings
+     * @param  Collection<int, Booking>  $windowBookings
      * @return array<int, array{eventTypeId: string, startAt: string, endAt: string, isAvailable: bool}>
      */
     private function buildSlots(

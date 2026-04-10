@@ -24,7 +24,7 @@ class BookingSeeder extends Seeder
     }
 
     /**
-     * @param Collection<string, EventType> $eventTypes
+     * @param  Collection<string, EventType>  $eventTypes
      * @return array<int, array<string, mixed>>
      */
     private function bookingDefinitions(Collection $eventTypes, CarbonImmutable $now): array

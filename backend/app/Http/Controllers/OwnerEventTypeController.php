@@ -12,9 +12,7 @@ class OwnerEventTypeController extends Controller
 {
     use SerializesApiResources;
 
-    public function __construct(private readonly EventTypeService $eventTypes)
-    {
-    }
+    public function __construct(private readonly EventTypeService $eventTypes) {}
 
     public function index(): JsonResponse
     {

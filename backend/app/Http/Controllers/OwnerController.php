@@ -10,9 +10,7 @@ class OwnerController extends Controller
 {
     use SerializesApiResources;
 
-    public function __construct(private readonly OwnerService $owners)
-    {
-    }
+    public function __construct(private readonly OwnerService $owners) {}
 
     public function show(): JsonResponse
     {
