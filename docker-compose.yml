@@ -3,20 +3,77 @@ services:
     build:
       context: .
       dockerfile: docker/frontend/Dockerfile
+    depends_on:
+      backend-web:
+        condition: service_healthy
+    environment:
+      VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8080}
     ports:
-      - "5173:5173"
+      - "${FRONTEND_PORT:-5173}:5173"
     volumes:
       - ./frontend:/app
       - frontend_node_modules:/app/node_modules
 
-  api-mock:
+  backend:
     build:
       context: .
-      dockerfile: docker/api-mock/Dockerfile
-    ports:
-      - "4010:4010"
+      dockerfile: docker/backend/Dockerfile
+    command: ["/usr/local/bin/start-backend"]
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      APP_ENV: ${APP_ENV:-local}
+      APP_DEBUG: ${APP_DEBUG:-true}
+      APP_URL: ${APP_URL:-http://localhost:8080}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:5173}
+      DB_CONNECTION: pgsql
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_DATABASE: ${POSTGRES_DB:-bookacall}
+      DB_USERNAME: ${POSTGRES_USER:-bookacall}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-bookacall}
+    expose:
+      - "9000"
     volumes:
-      - ./docs:/app/docs
+      - ./backend:/var/www/html
+      - backend_vendor:/var/www/html/vendor
+
+  backend-web:
+    build:
+      context: .
+      dockerfile: docker/backend-web/Dockerfile
+    depends_on:
+      backend:
+        condition: service_started
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1/up >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    ports:
+      - "${BACKEND_PORT:-8080}:80"
+    volumes:
+      - ./backend:/var/www/html:ro
+
+  db:
+    image: postgres:18.3
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-bookacall}
+      POSTGRES_USER: ${POSTGRES_USER:-bookacall}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-bookacall}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-bookacall} -d ${POSTGRES_DB:-bookacall}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    volumes:
+      - db_data:/var/lib/postgresql
 
 volumes:
   frontend_node_modules:
+  backend_vendor:
+  db_data:

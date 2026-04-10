@@ -2,11 +2,13 @@
 
 PROJECT_NAME            := ai-for-developers
 DOCKER_COMPOSE          := docker compose
+DOCKER_EXEC             := $(DOCKER_COMPOSE) exec -T
+DOCKER_RUN              := $(DOCKER_COMPOSE) run --rm
 OPENAPI_GENERATOR_IMAGE := $(PROJECT_NAME)-openapi-generator
 HOST_UID                := $(shell id -u)
 HOST_GID                := $(shell id -g)
 
-.PHONY: help generate-openapi up down logs ps sh-frontend
+.PHONY: help generate-openapi up down logs ps frontend-install backend-install backend-key migrate infra-check sh-frontend sh-backend
 
 ##@ OpenAPI
 
@@ -23,10 +25,10 @@ generate-openapi: ## Generate docs/openapi.yaml from docs/calendar.tsp
 ##@ Docker
 
 up: generate-openapi ## Generate OpenAPI and start dev containers
-	$(DOCKER_COMPOSE) up -d --build
+	$(DOCKER_COMPOSE) up -d --build --remove-orphans
 
 down: ## Stop and remove dev containers
-	$(DOCKER_COMPOSE) down
+	$(DOCKER_COMPOSE) down --remove-orphans
 
 logs: ## Follow service logs
 	$(DOCKER_COMPOSE) logs -f --tail=100
@@ -36,8 +38,29 @@ ps: ## Show running containers
 
 ##@ App
 
+frontend-install: ## Install frontend dependencies inside the frontend container
+	$(DOCKER_RUN) --no-deps frontend npm install
+
+backend-install: ## Install backend dependencies inside the backend container
+	$(DOCKER_RUN) --no-deps backend sh -lc 'if [ ! -f .env ]; then cp .env.example .env; fi && composer install --no-interaction'
+
+backend-key: ## Generate APP_KEY inside the backend container
+	$(DOCKER_EXEC) backend php artisan key:generate --force --no-interaction
+
+migrate: ## Run Laravel migrations inside the backend container
+	$(DOCKER_EXEC) backend php artisan migrate --force --no-interaction
+
+infra-check: ## Run a basic infrastructure smoke test
+	$(DOCKER_EXEC) db pg_isready -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"
+	$(DOCKER_EXEC) backend php artisan route:list --path=health
+	$(DOCKER_EXEC) backend php artisan migrate --force --graceful --no-interaction
+	$(DOCKER_EXEC) backend-web curl -fsS http://127.0.0.1/up >/dev/null
+
 sh-frontend: ## Open a shell inside the frontend container
 	$(DOCKER_COMPOSE) exec frontend sh
+
+sh-backend: ## Open a shell inside the backend container
+	$(DOCKER_COMPOSE) exec backend sh
 
 ##@ Help
 

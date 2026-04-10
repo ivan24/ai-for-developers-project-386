@@ -6,4 +6,5 @@ dist/
 coverage/
 .generated/
 .generated-cache/
+.env
 .DS_Store

@@ -10,7 +10,7 @@ import type {
   SlotListResponse,
 } from "./types";
 
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:4010";
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
 
 export const apiClient = axios.create({
   baseURL: apiBaseUrl,
