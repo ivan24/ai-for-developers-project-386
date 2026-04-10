@@ -35,7 +35,7 @@ This repository contains a Hexlet учебный проект for a Cal.com-like
 
 ## Coding Style & Naming Conventions
 
-- Use PHP 8.4 and Laravel conventions in `backend/`.
+- Use PHP 8.5 and Laravel conventions in `backend/`.
 - Keep backend controllers thin, move business logic to services, and keep data access in repository classes.
 - Do not write direct DB queries in services; go through repositories.
 - Keep Eloquent models simple: attributes, casts, and relations only.
