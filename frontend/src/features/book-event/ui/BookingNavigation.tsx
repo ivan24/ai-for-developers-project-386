@@ -25,24 +25,20 @@ export const BookingNavigation = ({
 
   return (
     <Group justify="space-between">
-      <Button
-        variant="default"
-        disabled={activeStep === 0}
-        onClick={onBack}
-      >
+      <Button variant="default" disabled={activeStep === 0} onClick={onBack}>
         Back
       </Button>
 
-      {activeStep === 0 && (
+      {activeStep === 0 ? (
         <Button
           disabled={!canContinueFromSchedule}
           onClick={onNextFromSchedule}
         >
           Continue to details
         </Button>
-      )}
+      ) : null}
 
-      {activeStep === 1 && (
+      {activeStep === 1 ? (
         <Button
           loading={isPending}
           disabled={!canSubmit}
@@ -50,7 +46,7 @@ export const BookingNavigation = ({
         >
           Create booking
         </Button>
-      )}
+      ) : null}
     </Group>
   );
 };

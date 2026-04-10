@@ -2,7 +2,6 @@ import {
   Badge,
   Button,
   Card,
-  Grid,
   Group,
   Paper,
   SimpleGrid,
@@ -11,9 +10,12 @@ import {
   Title,
 } from "@mantine/core";
 import { Link } from "react-router-dom";
-import { usePublicEventTypes } from "../api/hooks";
-import { ErrorState, LoadingState } from "../components/common/PageState";
-import { formatDuration } from "../utils/format";
+import { usePublicEventTypes } from "@/entities/event-type/api/hooks";
+import { formatDuration } from "@/shared/lib/format";
+import {
+  ErrorState,
+  LoadingState,
+} from "@/shared/ui/page-state/PageState";
 
 export const HomePage = () => {
   const eventTypesQuery = usePublicEventTypes();
@@ -35,7 +37,8 @@ export const HomePage = () => {
           <Stack gap="sm" align="center">
             <Title order={3}>No public event types yet</Title>
             <Text c="dimmed" maw={420}>
-              Add an event type in the owner section and it will immediately appear here for guests.
+              Add an event type in the owner section and it will immediately
+              appear here for guests.
             </Text>
             <Button component={Link} to="/owner/event-types" variant="light">
               Go to owner event types
@@ -49,7 +52,9 @@ export const HomePage = () => {
               <Stack gap="lg" h="100%">
                 <Group justify="space-between" align="start">
                   <Badge color="indigo">Public event</Badge>
-                  <Badge color="gray">{formatDuration(eventType.durationMinutes)}</Badge>
+                  <Badge color="gray">
+                    {formatDuration(eventType.durationMinutes)}
+                  </Badge>
                 </Group>
 
                 <Stack gap="xs">

@@ -1,6 +1,6 @@
 import { Badge, Group, Paper, Stack, Text, Title } from "@mantine/core";
-import { formatDuration } from "../../utils/format";
-import type { EventType } from "../../api/types";
+import type { EventType } from "@/shared/api/types";
+import { formatDuration } from "@/shared/lib/format";
 
 interface BookingHeroProps {
   eventType: EventType;
@@ -22,7 +22,8 @@ export const BookingHero = ({ eventType }: BookingHeroProps) => (
         {eventType.description || "No description provided yet."}
       </Text>
       <Text c="dimmed" fz="sm">
-        Pick a date, choose an available slot, and confirm the booking without extra UI noise.
+        Pick a date, choose an available slot, and confirm the booking without
+        extra UI noise.
       </Text>
     </Stack>
   </Paper>

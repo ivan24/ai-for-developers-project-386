@@ -8,7 +8,7 @@ import type {
   EventTypeListResponse,
   GuestBookingCreatedResponse,
   SlotListResponse,
-} from "./types";
+} from "@/shared/api/types";
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
 
@@ -21,7 +21,9 @@ export const apiClient = axios.create({
 
 export const api = {
   async getPublicEventTypes() {
-    const { data } = await apiClient.get<EventTypeListResponse>("/public/event-types");
+    const { data } = await apiClient.get<EventTypeListResponse>(
+      "/public/event-types",
+    );
 
     return data.items;
   },
@@ -50,7 +52,9 @@ export const api = {
     return data;
   },
   async getOwnerEventTypes() {
-    const { data } = await apiClient.get<EventTypeListResponse>("/owner/event-types");
+    const { data } = await apiClient.get<EventTypeListResponse>(
+      "/owner/event-types",
+    );
 
     return data.items;
   },

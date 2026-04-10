@@ -1,72 +1,26 @@
 import {
-  Badge,
   Button,
   Card,
   Group,
-  Modal,
-  NumberInput,
   Paper,
   SimpleGrid,
   Stack,
   Text,
-  TextInput,
-  Textarea,
   Title,
+  Badge,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { notifications } from "@mantine/notifications";
-import { useState } from "react";
+import { useOwnerEventTypes } from "@/entities/event-type/api/hooks";
+import { CreateEventTypeModal } from "@/features/create-event-type/ui/CreateEventTypeModal";
+import { formatDuration } from "@/shared/lib/format";
 import {
-  useCreateEventType,
-  useOwnerEventTypes,
-} from "../api/hooks";
-import { ErrorState, LoadingState } from "../components/common/PageState";
-import { formatDuration, getApiErrorMessage } from "../utils/format";
+  ErrorState,
+  LoadingState,
+} from "@/shared/ui/page-state/PageState";
 
 export const OwnerEventTypesPage = () => {
   const [opened, { open, close }] = useDisclosure(false);
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [durationMinutes, setDurationMinutes] = useState<number | string>(30);
   const eventTypesQuery = useOwnerEventTypes();
-  const createEventTypeMutation = useCreateEventType();
-
-  const handleCreate = async () => {
-    if (!name.trim() || typeof durationMinutes !== "number") {
-      notifications.show({
-        color: "red",
-        title: "Validation error",
-        message: "Name and duration are required.",
-      });
-
-      return;
-    }
-
-    try {
-      await createEventTypeMutation.mutateAsync({
-        name: name.trim(),
-        description: description.trim() || undefined,
-        durationMinutes,
-      });
-
-      notifications.show({
-        color: "teal",
-        title: "Event type created",
-        message: "The new event type is available in owner and guest views.",
-      });
-
-      setName("");
-      setDescription("");
-      setDurationMinutes(30);
-      close();
-    } catch (error) {
-      notifications.show({
-        color: "red",
-        title: "Unable to create event type",
-        message: getApiErrorMessage(error),
-      });
-    }
-  };
 
   if (eventTypesQuery.isLoading) {
     return <LoadingState label="Loading owner event types..." />;
@@ -87,7 +41,8 @@ export const OwnerEventTypesPage = () => {
             <Title order={1}>Manage event types</Title>
             <Text c="dimmed" mt={6} maw={620}>
               Create bookable offerings with a name, duration, and optional
-              description. The refreshed UI keeps this section closer to a product dashboard.
+              description. The refreshed UI keeps this section closer to a
+              product dashboard.
             </Text>
           </div>
           <Button onClick={open}>Add event type</Button>
@@ -123,7 +78,8 @@ export const OwnerEventTypesPage = () => {
           <Stack gap="sm" align="center">
             <Title order={3}>No event types created</Title>
             <Text c="dimmed" maw={420}>
-              Start with one simple meeting template so the guest side has something to book.
+              Start with one simple meeting template so the guest side has
+              something to book.
             </Text>
             <Button onClick={open}>Create first event type</Button>
           </Stack>
@@ -155,39 +111,7 @@ export const OwnerEventTypesPage = () => {
         </SimpleGrid>
       )}
 
-      <Modal
-        opened={opened}
-        onClose={close}
-        title="Create event type"
-      >
-        <Stack>
-          <TextInput
-            label="Name"
-            placeholder="Intro call"
-            value={name}
-            onChange={(event) => setName(event.currentTarget.value)}
-          />
-          <Textarea
-            label="Description"
-            placeholder="What this call is for"
-            minRows={3}
-            value={description}
-            onChange={(event) => setDescription(event.currentTarget.value)}
-          />
-          <NumberInput
-            label="Duration in minutes"
-            min={1}
-            value={durationMinutes}
-            onChange={setDurationMinutes}
-          />
-          <Button
-            loading={createEventTypeMutation.isPending}
-            onClick={handleCreate}
-          >
-            Save event type
-          </Button>
-        </Stack>
-      </Modal>
+      <CreateEventTypeModal opened={opened} onClose={close} />
     </Stack>
   );
 };

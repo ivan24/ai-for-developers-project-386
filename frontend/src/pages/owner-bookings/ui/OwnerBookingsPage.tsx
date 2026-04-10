@@ -1,6 +1,5 @@
 import {
   Badge,
-  Button,
   Card,
   Group,
   Paper,
@@ -9,34 +8,16 @@ import {
   Text,
   Title,
 } from "@mantine/core";
-import { notifications } from "@mantine/notifications";
+import { useUpcomingBookings } from "@/entities/booking/api/hooks";
+import { CancelBookingButton } from "@/features/cancel-booking/ui/CancelBookingButton";
+import { formatDateTime } from "@/shared/lib/format";
 import {
-  useCancelBooking,
-  useUpcomingBookings,
-} from "../api/hooks";
-import { ErrorState, LoadingState } from "../components/common/PageState";
-import { formatDateTime, getApiErrorMessage } from "../utils/format";
+  ErrorState,
+  LoadingState,
+} from "@/shared/ui/page-state/PageState";
 
 export const OwnerBookingsPage = () => {
   const bookingsQuery = useUpcomingBookings();
-  const cancelBookingMutation = useCancelBooking();
-
-  const handleCancel = async (bookingId: string) => {
-    try {
-      await cancelBookingMutation.mutateAsync(bookingId);
-      notifications.show({
-        color: "teal",
-        title: "Booking cancelled",
-        message: "The booking has been marked as cancelled.",
-      });
-    } catch (error) {
-      notifications.show({
-        color: "red",
-        title: "Unable to cancel booking",
-        message: getApiErrorMessage(error),
-      });
-    }
-  };
 
   if (bookingsQuery.isLoading) {
     return <LoadingState label="Loading upcoming bookings..." />;
@@ -55,8 +36,8 @@ export const OwnerBookingsPage = () => {
           <Text className="section-kicker">Owner dashboard</Text>
           <Title order={1}>Upcoming bookings</Title>
           <Text c="dimmed" maw={620}>
-            Review scheduled meetings across event types and cancel individual bookings
-            when plans change.
+            Review scheduled meetings across event types and cancel individual
+            bookings when plans change.
           </Text>
         </Stack>
       </Paper>
@@ -90,7 +71,8 @@ export const OwnerBookingsPage = () => {
           <Stack gap="sm" align="center">
             <Title order={3}>No upcoming bookings</Title>
             <Text c="dimmed" maw={420}>
-              Once a guest schedules a meeting, it will show up here with timing and status.
+              Once a guest schedules a meeting, it will show up here with timing
+              and status.
             </Text>
           </Stack>
         </Paper>
@@ -132,18 +114,10 @@ export const OwnerBookingsPage = () => {
                   <Text fz="sm" c="dimmed">
                     Booking ID: {booking.id}
                   </Text>
-                  <Button
-                    color="red"
-                    variant="light"
-                    disabled={booking.status !== "active"}
-                    loading={
-                      cancelBookingMutation.isPending &&
-                      cancelBookingMutation.variables === booking.id
-                    }
-                    onClick={() => handleCancel(booking.id)}
-                  >
-                    Cancel booking
-                  </Button>
+                  <CancelBookingButton
+                    bookingId={booking.id}
+                    status={booking.status}
+                  />
                 </Group>
               </Stack>
             </Card>

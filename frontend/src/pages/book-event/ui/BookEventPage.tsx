@@ -1,20 +1,17 @@
 import { Button, Card, Stack, Stepper } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import { Link, useParams } from "react-router-dom";
-import { usePublicEventTypes } from "../api/hooks";
-import { ErrorState, LoadingState } from "../components/common/PageState";
-
-// UI Components
-import { BookingHero } from "../components/booking/BookingHero";
-import { BookingNavigation } from "../components/booking/BookingNavigation";
-
-// Steps
-import { BookingCompletedStep } from "../components/booking/steps/BookingCompletedStep";
-import { GuestDetailsStep } from "../components/booking/steps/GuestDetailsStep";
-import { ScheduleStep } from "../components/booking/steps/ScheduleStep";
-
-// Hooks
-import { useBookingFlow } from "../components/booking/hooks/useBookingFlow";
+import { usePublicEventTypes } from "@/entities/event-type/api/hooks";
+import { useBookingFlow } from "@/features/book-event/model/useBookingFlow";
+import { BookingHero } from "@/features/book-event/ui/BookingHero";
+import { BookingNavigation } from "@/features/book-event/ui/BookingNavigation";
+import { BookingCompletedStep } from "@/features/book-event/ui/steps/BookingCompletedStep";
+import { GuestDetailsStep } from "@/features/book-event/ui/steps/GuestDetailsStep";
+import { ScheduleStep } from "@/features/book-event/ui/steps/ScheduleStep";
+import {
+  ErrorState,
+  LoadingState,
+} from "@/shared/ui/page-state/PageState";
 
 export const BookEventPage = () => {
   const { eventTypeId } = useParams();
@@ -95,10 +92,7 @@ export const BookEventPage = () => {
             </Stepper.Step>
 
             <Stepper.Step label="Details" description="Guest info">
-              <GuestDetailsStep
-                form={form}
-                selectedSlot={selectedSlot}
-              />
+              <GuestDetailsStep form={form} selectedSlot={selectedSlot} />
             </Stepper.Step>
 
             <Stepper.Completed>

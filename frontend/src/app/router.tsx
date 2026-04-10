@@ -1,9 +1,9 @@
 import { createBrowserRouter } from "react-router-dom";
-import { RootLayout } from "../components/layout/RootLayout";
-import { BookEventPage } from "../pages/BookEventPage";
-import { HomePage } from "../pages/HomePage";
-import { OwnerBookingsPage } from "../pages/OwnerBookingsPage";
-import { OwnerEventTypesPage } from "../pages/OwnerEventTypesPage";
+import { BookEventPage } from "@/pages/book-event/ui/BookEventPage";
+import { HomePage } from "@/pages/home/ui/HomePage";
+import { OwnerBookingsPage } from "@/pages/owner-bookings/ui/OwnerBookingsPage";
+import { OwnerEventTypesPage } from "@/pages/owner-event-types/ui/OwnerEventTypesPage";
+import { RootLayout } from "@/widgets/root-layout/ui/RootLayout";
 
 export const router = createBrowserRouter([
   {

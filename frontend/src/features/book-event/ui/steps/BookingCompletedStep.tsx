@@ -1,7 +1,7 @@
 import { Alert, Button, Group, Stack } from "@mantine/core";
 import { Link } from "react-router-dom";
-import type { GuestBooking } from "../../../api/types";
-import { formatDateTime } from "../../../utils/format";
+import type { GuestBooking } from "@/shared/api/types";
+import { formatDateTime } from "@/shared/lib/format";
 
 interface BookingCompletedStepProps {
   createdBooking: GuestBooking | null;
@@ -26,9 +26,7 @@ export const BookingCompletedStep = ({
     </Alert>
 
     <Group>
-      <Button onClick={onBookAnother}>
-        Book another slot
-      </Button>
+      <Button onClick={onBookAnother}>Book another slot</Button>
       <Button component={Link} to="/" variant="light">
         Back to event types
       </Button>

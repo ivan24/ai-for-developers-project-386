@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 import type { AxiosError } from "axios";
-import type { ApiErrorPayload } from "../api/types";
+import type { ApiErrorPayload } from "@/shared/api/types";
 
 export const getTodayDateValue = () => dayjs().format("YYYY-MM-DD");
 

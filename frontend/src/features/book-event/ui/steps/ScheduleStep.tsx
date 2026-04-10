@@ -10,9 +10,12 @@ import {
   Title,
 } from "@mantine/core";
 import { DatePicker } from "@mantine/dates";
-import type { Slot } from "../../../api/types";
-import { formatDateTime, formatTime } from "../../../utils/format";
-import { ErrorState, LoadingState } from "../../common/PageState";
+import type { Slot } from "@/shared/api/types";
+import { formatDateTime, formatTime } from "@/shared/lib/format";
+import {
+  ErrorState,
+  LoadingState,
+} from "@/shared/ui/page-state/PageState";
 
 interface ScheduleStepProps {
   selectedDate: string | null;
@@ -52,53 +55,22 @@ export const ScheduleStep = ({
           p="md"
           className="booking-date-layout booking-schedule-panel"
         >
-          <Stack gap="md">
-            <DatePicker
-              value={selectedDate}
-              onChange={onDateChange}
-              minDate={new Date()}
-              size="md"
-            />
-
-            <Paper
-              radius="lg"
-              p="lg"
-              className="booking-date-summary"
-              withBorder
-            >
-              <Stack gap="md">
-                <Group justify="space-between" align="flex-start" gap="sm">
-                  <div>
-                    <Text className="section-kicker">Selected day</Text>
-                    <Title order={4}>{selectedDateLabel}</Title>
-                  </div>
-
-                  <Badge color={selectedDate ? "indigo" : "gray"} size="lg">
-                    {selectedDate ? "Confirmed" : "Choose a day"}
-                  </Badge>
-                </Group>
-
-                <Text c="dimmed" size="sm">
-                  Times are shown for{" "}
-                  {Intl.DateTimeFormat().resolvedOptions().timeZone}.
-                </Text>
-
-                <Alert
-                  color={selectedDate ? "indigo" : "yellow"}
-                  title={selectedDate ? "Schedule is ready" : "Date required"}
-                >
-                  {selectedDate
-                    ? "Pick one available time from the list to continue."
-                    : "Select a day on the calendar to load available time slots."}
-                </Alert>
-              </Stack>
-            </Paper>
-          </Stack>
+          <DatePicker
+            value={selectedDate}
+            onChange={onDateChange}
+            minDate={new Date()}
+            size="xl"
+          />
         </Paper>
       </Grid.Col>
 
       <Grid.Col span={{ base: 12, lg: 7 }}>
-        <Paper withBorder radius="xl" p="lg" className="booking-slot-panel booking-schedule-panel">
+        <Paper
+          withBorder
+          radius="xl"
+          p="lg"
+          className="booking-slot-panel booking-schedule-panel"
+        >
           <Stack gap="md">
             <Group justify="space-between" align="center" gap="sm">
               <div>
@@ -135,9 +107,7 @@ export const ScheduleStep = ({
                       fullWidth
                       className="slot-button"
                       variant={
-                        selectedSlot?.startAt === slot.startAt
-                          ? "filled"
-                          : "light"
+                        selectedSlot?.startAt === slot.startAt ? "filled" : "light"
                       }
                       color={slot.isAvailable ? "indigo" : "gray"}
                       disabled={!slot.isAvailable}

@@ -1,13 +1,15 @@
 import { useForm } from "@mantine/form";
 import { notifications } from "@mantine/notifications";
+import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
-import { useAvailableSlots, useCreateBooking } from "../../../api/hooks";
-import type { GuestBooking, Slot } from "../../../api/types";
+import { useAvailableSlots } from "@/entities/booking/api/hooks";
+import { api } from "@/shared/api/client";
+import type { GuestBooking, Slot } from "@/shared/api/types";
 import {
   formatSelectedDate,
   getApiErrorMessage,
   getTodayDateValue,
-} from "../../../utils/format";
+} from "@/shared/lib/format";
 
 interface UseBookingFlowProps {
   eventTypeId: string | undefined;
@@ -26,7 +28,9 @@ export const useBookingFlow = ({ eventTypeId }: UseBookingFlowProps) => {
     date: selectedDate ?? getTodayDateValue(),
   });
 
-  const createBookingMutation = useCreateBooking();
+  const createBookingMutation = useMutation({
+    mutationFn: api.createBooking,
+  });
 
   const form = useForm({
     initialValues: {
