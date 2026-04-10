@@ -8,7 +8,7 @@ OPENAPI_GENERATOR_IMAGE := $(PROJECT_NAME)-openapi-generator
 HOST_UID                := $(shell id -u)
 HOST_GID                := $(shell id -g)
 
-.PHONY: help generate-openapi up down logs ps frontend-install backend-install backend-key migrate infra-check sh-frontend sh-backend
+.PHONY: help generate-openapi up down logs ps frontend-install backend-install backend-key migrate seed migrate-seed backend-test infra-check sh-frontend sh-backend
 
 ##@ OpenAPI
 
@@ -24,7 +24,7 @@ generate-openapi: ## Generate docs/openapi.yaml from docs/calendar.tsp
 
 ##@ Docker
 
-up: generate-openapi ## Generate OpenAPI and start dev containers
+up: frontend-install backend-install ## Start dev containers
 	$(DOCKER_COMPOSE) up -d --build --remove-orphans
 
 down: ## Stop and remove dev containers
@@ -49,6 +49,15 @@ backend-key: ## Generate APP_KEY inside the backend container
 
 migrate: ## Run Laravel migrations inside the backend container
 	$(DOCKER_EXEC) backend php artisan migrate --force --no-interaction
+
+seed: ## Run Laravel seeders inside the backend container
+	$(DOCKER_EXEC) backend php artisan db:seed --force --no-interaction
+
+migrate-seed: ## Refresh the database and seed demo data inside the backend container
+	$(DOCKER_EXEC) backend php artisan migrate:fresh --seed --force --no-interaction
+
+backend-test: ## Run backend test suite inside the backend container
+	$(DOCKER_EXEC) backend php artisan test --without-tty
 
 infra-check: ## Run a basic infrastructure smoke test
 	$(DOCKER_EXEC) db pg_isready -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"
