@@ -57,7 +57,7 @@ export const BookingSidebar = ({
           ? "Booking created successfully."
           : selectedSlot
             ? "Enter guest details and confirm the booking."
-            : "Choose a date and then select one of the available slots."}
+            : "Choose a day and time in the schedule to continue."}
       </Alert>
 
       <Button component={Link} to="/" variant="subtle">

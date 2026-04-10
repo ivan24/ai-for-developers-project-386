@@ -1,4 +1,4 @@
-import { Button, Card, Grid, Stack, Stepper } from "@mantine/core";
+import { Button, Card, Stack, Stepper } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import { Link, useParams } from "react-router-dom";
 import { usePublicEventTypes } from "../api/hooks";
@@ -7,13 +7,11 @@ import { ErrorState, LoadingState } from "../components/common/PageState";
 // UI Components
 import { BookingHero } from "../components/booking/BookingHero";
 import { BookingNavigation } from "../components/booking/BookingNavigation";
-import { BookingSidebar } from "../components/booking/BookingSidebar";
 
 // Steps
 import { BookingCompletedStep } from "../components/booking/steps/BookingCompletedStep";
-import { DateSelectionStep } from "../components/booking/steps/DateSelectionStep";
 import { GuestDetailsStep } from "../components/booking/steps/GuestDetailsStep";
-import { SlotSelectionStep } from "../components/booking/steps/SlotSelectionStep";
+import { ScheduleStep } from "../components/booking/steps/ScheduleStep";
 
 // Hooks
 import { useBookingFlow } from "../components/booking/hooks/useBookingFlow";
@@ -33,7 +31,7 @@ export const BookEventPage = () => {
     slotsQuery,
     form,
     selectedDateLabel,
-    canContinueFromSlot,
+    canContinueFromSchedule,
     canSubmit,
     isCreatingBooking,
     handlers,
@@ -68,80 +66,60 @@ export const BookEventPage = () => {
     <Stack gap="xl">
       <BookingHero eventType={selectedEventType} />
 
-      <Grid gap="xl" align="start">
-        <Grid.Col span={{ base: 12, xl: 8 }}>
-          <Card className="surface-card booking-stepper">
-            <Stack gap="xl">
-              <Stepper
-                active={activeStep}
-                onStepClick={setActiveStep}
-                allowNextStepsSelect={false}
-                orientation={isMobile ? "vertical" : "horizontal"}
-                color="indigo"
-                iconSize={42}
-                styles={{ separator: { marginInline: 12 } }}
-              >
-                <Stepper.Step
-                  label="Date"
-                  description="Pick a day"
-                  loading={activeStep === 0 && slotsQuery.isFetching}
-                >
-                  <DateSelectionStep
-                    selectedDate={selectedDate}
-                    onDateChange={handlers.onDateChange}
-                    selectedDateLabel={selectedDateLabel}
-                  />
-                </Stepper.Step>
-
-                <Stepper.Step label="Slot" description="Choose time">
-                  <SlotSelectionStep
-                    slots={slots}
-                    isLoading={slotsQuery.isLoading}
-                    isError={slotsQuery.isError}
-                    selectedSlot={selectedSlot}
-                    selectedDateLabel={selectedDateLabel}
-                    onSlotSelect={handlers.onSlotSelect}
-                  />
-                </Stepper.Step>
-
-                <Stepper.Step label="Details" description="Guest info">
-                  <GuestDetailsStep
-                    form={form}
-                    selectedSlot={selectedSlot}
-                  />
-                </Stepper.Step>
-
-                <Stepper.Completed>
-                  <BookingCompletedStep
-                    createdBooking={createdBooking}
-                    onBookAnother={handlers.onBookAnother}
-                  />
-                </Stepper.Completed>
-              </Stepper>
-
-              <BookingNavigation
-                activeStep={activeStep}
-                canContinueFromSlot={canContinueFromSlot}
-                canSubmit={canSubmit}
-                isPending={isCreatingBooking}
-                onBack={handlers.onBack}
-                onNextFromDate={handlers.onNextFromDate}
-                onNextFromSlot={handlers.onNextFromSlot}
-                onCreateBooking={handlers.onCreateBooking}
+      <Card className="surface-card booking-stepper">
+        <Stack gap="xl">
+          <Stepper
+            active={activeStep}
+            onStepClick={setActiveStep}
+            allowNextStepsSelect={false}
+            orientation={isMobile ? "vertical" : "horizontal"}
+            color="indigo"
+            iconSize={42}
+            styles={{ separator: { marginInline: 12 } }}
+          >
+            <Stepper.Step
+              label="Schedule"
+              description="Pick day & time"
+              loading={activeStep === 0 && slotsQuery.isFetching}
+            >
+              <ScheduleStep
+                selectedDate={selectedDate}
+                onDateChange={handlers.onDateChange}
+                selectedDateLabel={selectedDateLabel}
+                slots={slots}
+                isLoading={slotsQuery.isLoading}
+                isError={slotsQuery.isError}
+                selectedSlot={selectedSlot}
+                onSlotSelect={handlers.onSlotSelect}
               />
-            </Stack>
-          </Card>
-        </Grid.Col>
+            </Stepper.Step>
 
-        <Grid.Col span={{ base: 12, xl: 4 }}>
-          <BookingSidebar
-            eventType={selectedEventType}
-            selectedDateLabel={selectedDateLabel}
-            selectedSlot={selectedSlot}
-            createdBooking={createdBooking}
+            <Stepper.Step label="Details" description="Guest info">
+              <GuestDetailsStep
+                form={form}
+                selectedSlot={selectedSlot}
+              />
+            </Stepper.Step>
+
+            <Stepper.Completed>
+              <BookingCompletedStep
+                createdBooking={createdBooking}
+                onBookAnother={handlers.onBookAnother}
+              />
+            </Stepper.Completed>
+          </Stepper>
+
+          <BookingNavigation
+            activeStep={activeStep}
+            canContinueFromSchedule={canContinueFromSchedule}
+            canSubmit={canSubmit}
+            isPending={isCreatingBooking}
+            onBack={handlers.onBack}
+            onNextFromSchedule={handlers.onNextFromSchedule}
+            onCreateBooking={handlers.onCreateBooking}
           />
-        </Grid.Col>
-      </Grid>
+        </Stack>
+      </Card>
     </Stack>
   );
 };

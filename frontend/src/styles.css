@@ -126,6 +126,28 @@ a {
   overflow: hidden;
 }
 
+.booking-date-layout {
+  background:
+    linear-gradient(180deg, rgba(250, 252, 255, 0.96), rgba(244, 248, 255, 0.9));
+}
+
+.booking-schedule-panel {
+  height: 100%;
+}
+
+.booking-date-summary {
+  background:
+    radial-gradient(circle at top right, rgba(67, 97, 238, 0.12), transparent 30%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(247, 250, 255, 0.94));
+  border-color: rgba(67, 97, 238, 0.14);
+}
+
+.booking-slot-panel {
+  background:
+    radial-gradient(circle at top left, rgba(13, 148, 136, 0.1), transparent 24%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(246, 250, 255, 0.92));
+}
+
 .slot-button {
   justify-content: space-between;
 }

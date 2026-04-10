@@ -1,10 +1,13 @@
-import { type DateValue } from "@mantine/dates";
 import { useForm } from "@mantine/form";
 import { notifications } from "@mantine/notifications";
 import { useState } from "react";
 import { useAvailableSlots, useCreateBooking } from "../../../api/hooks";
 import type { GuestBooking, Slot } from "../../../api/types";
-import { getApiErrorMessage } from "../../../utils/format";
+import {
+  formatSelectedDate,
+  getApiErrorMessage,
+  getTodayDateValue,
+} from "../../../utils/format";
 
 interface UseBookingFlowProps {
   eventTypeId: string | undefined;
@@ -12,13 +15,15 @@ interface UseBookingFlowProps {
 
 export const useBookingFlow = ({ eventTypeId }: UseBookingFlowProps) => {
   const [activeStep, setActiveStep] = useState(0);
-  const [selectedDate, setSelectedDate] = useState<DateValue>(new Date());
+  const [selectedDate, setSelectedDate] = useState<string | null>(
+    getTodayDateValue(),
+  );
   const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
   const [createdBooking, setCreatedBooking] = useState<GuestBooking | null>(null);
 
   const slotsQuery = useAvailableSlots({
     eventTypeId,
-    date: selectedDate ?? new Date(),
+    date: selectedDate ?? getTodayDateValue(),
   });
 
   const createBookingMutation = useCreateBooking();
@@ -37,27 +42,21 @@ export const useBookingFlow = ({ eventTypeId }: UseBookingFlowProps) => {
     },
   });
 
-  const selectedDateLabel = selectedDate instanceof Date
-    ? selectedDate.toLocaleDateString(undefined, {
-        weekday: "long",
-        month: "long",
-        day: "numeric",
-      })
-    : "Not selected yet";
+  const selectedDateLabel = formatSelectedDate(selectedDate);
 
-  const canContinueFromSlot = Boolean(selectedSlot);
+  const canContinueFromSchedule = Boolean(selectedSlot);
   const canSubmit =
-    canContinueFromSlot &&
+    canContinueFromSchedule &&
     form.values.guestName.trim().length >= 2 &&
     /^\S+@\S+\.\S+$/.test(form.values.guestEmail.trim());
 
-  const handleDateChange = (value: DateValue) => {
+  const handleDateChange = (value: string | null) => {
     setSelectedDate(value);
     setSelectedSlot(null);
     setCreatedBooking(null);
 
-    if (activeStep > 1) {
-      setActiveStep(1);
+    if (activeStep > 0) {
+      setActiveStep(0);
     }
   };
 
@@ -70,21 +69,7 @@ export const useBookingFlow = ({ eventTypeId }: UseBookingFlowProps) => {
     setCreatedBooking(null);
   };
 
-  const handleNextFromDate = () => {
-    if (!selectedDate) {
-      notifications.show({
-        color: "red",
-        title: "Pick a date",
-        message: "Choose a day before moving to slot selection.",
-      });
-
-      return;
-    }
-
-    setActiveStep(1);
-  };
-
-  const handleNextFromSlot = () => {
+  const handleNextFromSchedule = () => {
     if (!selectedSlot) {
       notifications.show({
         color: "red",
@@ -95,7 +80,7 @@ export const useBookingFlow = ({ eventTypeId }: UseBookingFlowProps) => {
       return;
     }
 
-    setActiveStep(2);
+    setActiveStep(1);
   };
 
   const handleCreateBooking = async () => {
@@ -119,7 +104,7 @@ export const useBookingFlow = ({ eventTypeId }: UseBookingFlowProps) => {
         guestEmail: form.values.guestEmail.trim(),
       });
       setCreatedBooking(response.booking);
-      setActiveStep(3);
+      setActiveStep(2);
 
       notifications.show({
         color: "teal",
@@ -143,7 +128,7 @@ export const useBookingFlow = ({ eventTypeId }: UseBookingFlowProps) => {
   const handleBookAnother = () => {
     setCreatedBooking(null);
     setSelectedSlot(null);
-    setActiveStep(1);
+    setActiveStep(0);
   };
 
   return {
@@ -156,14 +141,13 @@ export const useBookingFlow = ({ eventTypeId }: UseBookingFlowProps) => {
     slotsQuery,
     form,
     selectedDateLabel,
-    canContinueFromSlot,
+    canContinueFromSchedule,
     canSubmit,
     isCreatingBooking: createBookingMutation.isPending,
     handlers: {
       onDateChange: handleDateChange,
       onSlotSelect: handleSlotSelect,
-      onNextFromDate: handleNextFromDate,
-      onNextFromSlot: handleNextFromSlot,
+      onNextFromSchedule: handleNextFromSchedule,
       onCreateBooking: handleCreateBooking,
       onBack: handleBack,
       onBookAnother: handleBookAnother,

@@ -2,26 +2,24 @@ import { Button, Group } from "@mantine/core";
 
 interface BookingNavigationProps {
   activeStep: number;
-  canContinueFromSlot: boolean;
+  canContinueFromSchedule: boolean;
   canSubmit: boolean;
   isPending: boolean;
   onBack: () => void;
-  onNextFromDate: () => void;
-  onNextFromSlot: () => void;
+  onNextFromSchedule: () => void;
   onCreateBooking: () => void;
 }
 
 export const BookingNavigation = ({
   activeStep,
-  canContinueFromSlot,
+  canContinueFromSchedule,
   canSubmit,
   isPending,
   onBack,
-  onNextFromDate,
-  onNextFromSlot,
+  onNextFromSchedule,
   onCreateBooking,
 }: BookingNavigationProps) => {
-  if (activeStep >= 3) {
+  if (activeStep >= 2) {
     return null;
   }
 
@@ -36,21 +34,15 @@ export const BookingNavigation = ({
       </Button>
 
       {activeStep === 0 && (
-        <Button onClick={onNextFromDate}>
-          Continue to slots
-        </Button>
-      )}
-
-      {activeStep === 1 && (
         <Button
-          disabled={!canContinueFromSlot}
-          onClick={onNextFromSlot}
+          disabled={!canContinueFromSchedule}
+          onClick={onNextFromSchedule}
         >
           Continue to details
         </Button>
       )}
 
-      {activeStep === 2 && (
+      {activeStep === 1 && (
         <Button
           loading={isPending}
           disabled={!canSubmit}

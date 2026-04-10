@@ -8,7 +8,7 @@ OPENAPI_GENERATOR_IMAGE := $(PROJECT_NAME)-openapi-generator
 HOST_UID                := $(shell id -u)
 HOST_GID                := $(shell id -g)
 
-.PHONY: help generate-openapi up down logs ps frontend-install backend-install backend-composer-refresh backend-composer-update backend-key migrate seed migrate-seed backend-test backend-lint backend-lint-fix backend-analyse backend-qa infra-check sh-frontend sh-backend
+.PHONY: help generate-openapi up down logs ps frontend-install frontend-build backend-install backend-composer-refresh backend-composer-update backend-key migrate seed migrate-seed backend-test backend-lint backend-lint-fix backend-analyse backend-qa infra-check sh-frontend sh-backend
 
 ##@ OpenAPI
 
@@ -40,6 +40,9 @@ ps: ## Show running containers
 
 frontend-install: ## Install frontend dependencies inside the frontend container
 	$(DOCKER_RUN) --no-deps frontend npm install
+
+frontend-build: ## Run frontend typecheck and production build inside the frontend container
+	$(DOCKER_EXEC) frontend npm run build
 
 backend-install: ## Install backend dependencies inside the backend container
 	$(DOCKER_RUN) --build --no-deps backend sh -lc 'if [ ! -f .env ]; then cp .env.example .env; fi && composer install --no-interaction'

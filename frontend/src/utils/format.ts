@@ -2,6 +2,11 @@ import dayjs from "dayjs";
 import type { AxiosError } from "axios";
 import type { ApiErrorPayload } from "../api/types";
 
+export const getTodayDateValue = () => dayjs().format("YYYY-MM-DD");
+
+export const formatSelectedDate = (value: string | null) =>
+  value ? dayjs(value).format("dddd, MMMM D") : "Choose a day to load slots";
+
 export const formatDateTime = (value: string) =>
   dayjs(value).format("DD MMM YYYY, HH:mm");
 
