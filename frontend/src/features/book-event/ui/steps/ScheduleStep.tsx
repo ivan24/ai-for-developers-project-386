@@ -104,6 +104,7 @@ export const ScheduleStep = ({
                     span={{ base: 12, xs: 6, md: 4 }}
                   >
                     <Button
+                      data-testid={`slot-button-${slot.startAt}`}
                       fullWidth
                       className="slot-button"
                       variant={
@@ -121,7 +122,7 @@ export const ScheduleStep = ({
             ) : null}
 
             {selectedSlot ? (
-              <Alert color="teal" title="Selected slot">
+              <Alert data-testid="selected-slot-alert" color="teal" title="Selected slot">
                 {formatDateTime(selectedSlot.startAt)} -{" "}
                 {formatTime(selectedSlot.endAt)}
               </Alert>

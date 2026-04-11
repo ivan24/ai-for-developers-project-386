@@ -7,8 +7,12 @@ DOCKER_RUN              := $(DOCKER_COMPOSE) run --rm
 OPENAPI_GENERATOR_IMAGE := $(PROJECT_NAME)-openapi-generator
 HOST_UID                := $(shell id -u)
 HOST_GID                := $(shell id -g)
+E2E_DB_HOST             := db-e2e
+E2E_DB_NAME             := bookacall_e2e
+E2E_DB_VOLUME           := $(PROJECT_NAME)_db_e2e_data
+E2E_FRONTEND_ORIGIN     := http://localhost:5173
 
-.PHONY: help generate-openapi up down logs ps frontend-install frontend-build backend-install backend-composer-refresh backend-composer-update backend-key migrate seed migrate-seed backend-test backend-lint backend-lint-fix backend-analyse backend-qa infra-check sh-frontend sh-backend
+.PHONY: help generate-openapi up down logs ps frontend-install frontend-build backend-install backend-composer-refresh backend-composer-update backend-key migrate seed migrate-seed backend-test backend-lint backend-lint-fix backend-analyse backend-qa infra-check e2e-up e2e-prepare e2e-test e2e-clean-artifacts e2e-reset e2e-down e2e sh-frontend sh-backend
 
 ##@ OpenAPI
 
@@ -84,6 +88,38 @@ infra-check: ## Run a basic infrastructure smoke test
 	$(DOCKER_EXEC) backend php artisan route:list --path=health
 	$(DOCKER_EXEC) backend php artisan migrate --force --graceful --no-interaction
 	$(DOCKER_EXEC) backend-web curl -fsS http://127.0.0.1/up >/dev/null
+
+e2e-up: frontend-install backend-install ## Recreate the current app stack against the e2e database
+	BACKEND_DB_HOST=$(E2E_DB_HOST) \
+	BACKEND_DB_DATABASE=$(E2E_DB_NAME) \
+	E2E_POSTGRES_DB=$(E2E_DB_NAME) \
+	FRONTEND_URL=$(E2E_FRONTEND_ORIGIN) \
+	CORS_ALLOWED_ORIGINS=$(E2E_FRONTEND_ORIGIN) \
+	$(DOCKER_COMPOSE) up -d --build --force-recreate --remove-orphans frontend backend backend-web db db-e2e
+
+e2e-prepare: ## Refresh the e2e database with deterministic booking fixtures
+	$(DOCKER_EXEC) backend php artisan migrate:fresh --seed --seeder=Database\\Seeders\\E2eBookingSeeder --force --no-interaction
+
+e2e-test: ## Run Playwright booking tests against the current frontend service
+	$(DOCKER_RUN) --no-deps playwright npm run test:e2e
+
+e2e-clean-artifacts: ## Remove Playwright artifacts after a successful e2e run
+	rm -rf frontend/test-results frontend/playwright-report
+
+e2e-reset: ## Restore the default backend database wiring after e2e runs
+	$(DOCKER_COMPOSE) up -d --build --force-recreate backend backend-web frontend db
+
+e2e-down: e2e-reset ## Remove the temporary e2e database service
+	$(DOCKER_COMPOSE) rm -sf db-e2e
+	docker volume rm -f $(E2E_DB_VOLUME) >/dev/null 2>&1 || true
+
+e2e: ## Run the main booking flow end-to-end with Playwright
+	@set -eu; \
+	trap 'status=$$?; $(MAKE) e2e-down; exit $$status' EXIT INT TERM; \
+	$(MAKE) e2e-up; \
+	$(MAKE) e2e-prepare; \
+	$(MAKE) e2e-test; \
+	$(MAKE) e2e-clean-artifacts
 
 sh-frontend: ## Open a shell inside the frontend container
 	$(DOCKER_COMPOSE) exec frontend sh
