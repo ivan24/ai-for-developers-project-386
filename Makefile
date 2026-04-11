@@ -12,7 +12,7 @@ E2E_DB_NAME             := bookacall_e2e
 E2E_DB_VOLUME           := $(PROJECT_NAME)_db_e2e_data
 E2E_FRONTEND_ORIGIN     := http://localhost:5173
 
-.PHONY: help generate-openapi up down logs ps frontend-install frontend-build backend-install backend-composer-refresh backend-composer-update backend-key migrate seed migrate-seed backend-test backend-lint backend-lint-fix backend-analyse backend-qa infra-check e2e-up e2e-prepare e2e-test e2e-clean-artifacts e2e-reset e2e-down e2e sh-frontend sh-backend
+.PHONY: help generate-openapi up down logs ps frontend-install frontend-build backend-install backend-composer-refresh backend-composer-update backend-key migrate seed migrate-seed backend-test backend-lint backend-lint-fix backend-analyse backend-qa infra-check e2e-up e2e-prepare e2e-test e2e-clean-artifacts e2e-reset e2e-down e2e ci sh-frontend sh-backend
 
 ##@ OpenAPI
 
@@ -120,6 +120,16 @@ e2e: ## Run the main booking flow end-to-end with Playwright
 	$(MAKE) e2e-prepare; \
 	$(MAKE) e2e-test; \
 	$(MAKE) e2e-clean-artifacts
+
+ci: ## Run the CI test suite in Docker
+	@set -eu; \
+	trap '$(MAKE) down' EXIT INT TERM; \
+	$(MAKE) up; \
+	$(MAKE) backend-key; \
+	$(MAKE) migrate-seed; \
+	$(MAKE) backend-qa; \
+	$(MAKE) frontend-build; \
+	$(MAKE) e2e
 
 sh-frontend: ## Open a shell inside the frontend container
 	$(DOCKER_COMPOSE) exec frontend sh
