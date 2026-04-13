@@ -12,7 +12,7 @@ E2E_DB_NAME             := bookacall_e2e
 E2E_DB_VOLUME           := $(PROJECT_NAME)_db_e2e_data
 E2E_FRONTEND_ORIGIN     := http://localhost:5173
 
-.PHONY: help generate-openapi up down logs ps frontend-install frontend-build backend-install backend-composer-refresh backend-composer-update backend-key migrate seed migrate-seed backend-test backend-lint backend-lint-fix backend-analyse backend-qa infra-check e2e-up e2e-prepare e2e-test e2e-clean-artifacts e2e-reset e2e-down e2e ci sh-frontend sh-backend
+.PHONY: help generate-openapi up down logs ps frontend-install frontend-build backend-install backend-composer-refresh backend-composer-update backend-key migrate seed migrate-seed backend-test backend-lint backend-lint-fix backend-analyse backend-qa infra-check prod-build prod-smoke prod-smoke-debug e2e-up e2e-prepare e2e-test e2e-clean-artifacts e2e-reset e2e-down e2e ci sh-frontend sh-backend
 
 ##@ OpenAPI
 
@@ -88,6 +88,66 @@ infra-check: ## Run a basic infrastructure smoke test
 	$(DOCKER_EXEC) backend php artisan route:list --path=health
 	$(DOCKER_EXEC) backend php artisan migrate --force --graceful --no-interaction
 	$(DOCKER_EXEC) backend-web curl -fsS http://127.0.0.1/up >/dev/null
+
+prod-build: ## Build the production Docker image from the root Dockerfile
+	docker build --file Dockerfile --tag $(PROJECT_NAME)-prod .
+
+prod-smoke: prod-build ## Run the production image against the local dev database and verify health/API endpoints
+	@set -eu; \
+		base64_app_key=$$(sed -n 's/^APP_KEY=//p' backend/.env); \
+		plain_app_key='0123456789abcdef0123456789abcdef'; \
+		docker rm -f $(PROJECT_NAME)-prod-smoke >/dev/null 2>&1 || true; \
+		trap 'status=$$?; if [ $$status -ne 0 ]; then docker logs $(PROJECT_NAME)-prod-smoke 2>/dev/null || true; fi; docker rm -f $(PROJECT_NAME)-prod-smoke >/dev/null 2>&1 || true; exit $$status' EXIT INT TERM; \
+		for app_key in "$$base64_app_key" "$$plain_app_key"; do \
+			docker rm -f $(PROJECT_NAME)-prod-smoke >/dev/null 2>&1 || true; \
+			docker run -d --rm \
+				--name $(PROJECT_NAME)-prod-smoke \
+				--network $(PROJECT_NAME)_default \
+				-p 10000:10000 \
+				-e PORT=10000 \
+				-e APP_KEY="$$app_key" \
+				-e DB_CONNECTION=pgsql \
+				-e DB_HOST=db \
+				-e DB_PORT=5432 \
+				-e DB_DATABASE=bookacall \
+				-e DB_USERNAME=bookacall \
+				-e DB_PASSWORD=bookacall \
+				$(PROJECT_NAME)-prod >/dev/null; \
+			for attempt in 1 2 3 4 5 6 7 8 9 10; do \
+				if curl -fsS http://127.0.0.1:10000/up >/dev/null; then \
+					break; \
+				fi; \
+				sleep 2; \
+				if [ $$attempt -eq 10 ]; then \
+					exit 1; \
+				fi; \
+			done; \
+			curl -fsS http://127.0.0.1:10000/public/event-types >/dev/null; \
+			docker rm -f $(PROJECT_NAME)-prod-smoke >/dev/null 2>&1 || true; \
+		done
+
+prod-smoke-debug: prod-build ## Run the production image against the local dev database and print container diagnostics
+	@set -eu; \
+		app_key=$$(sed -n 's/^APP_KEY=//p' backend/.env); \
+		docker rm -f $(PROJECT_NAME)-prod-smoke-debug >/dev/null 2>&1 || true; \
+		trap 'docker rm -f $(PROJECT_NAME)-prod-smoke-debug >/dev/null 2>&1 || true' EXIT INT TERM; \
+		docker run -d \
+			--name $(PROJECT_NAME)-prod-smoke-debug \
+			--network $(PROJECT_NAME)_default \
+			-p 10000:10000 \
+			-e PORT=10000 \
+			-e APP_KEY="$$app_key" \
+			-e DB_CONNECTION=pgsql \
+			-e DB_HOST=db \
+			-e DB_PORT=5432 \
+			-e DB_DATABASE=bookacall \
+			-e DB_USERNAME=bookacall \
+			-e DB_PASSWORD=bookacall \
+			$(PROJECT_NAME)-prod >/dev/null; \
+		sleep 10; \
+		docker ps -a --filter name=$(PROJECT_NAME)-prod-smoke-debug; \
+		docker logs $(PROJECT_NAME)-prod-smoke-debug || true; \
+		curl -i http://127.0.0.1:10000/up || true
 
 e2e-up: frontend-install backend-install ## Recreate the current app stack against the e2e database
 	BACKEND_DB_HOST=$(E2E_DB_HOST) \

@@ -14,6 +14,8 @@
 - `make backend-key` — сгенерировать `APP_KEY` для Laravel
 - `make migrate` — выполнить Laravel migrations
 - `make infra-check` — прогнать базовую проверку инфраструктуры
+- `make prod-build` — собрать production Docker-образ из корневого `Dockerfile`
+- `make prod-smoke` — запустить production Docker-образ против локальной dev-базы и проверить `health` и публичный API
 - `make e2e` — прогнать основной сценарий бронирования через Playwright на test DB
 - `make e2e-up` — переключить текущий backend на test DB для e2e-отладки
 - `make e2e-down` — вернуть backend на обычную dev DB и убрать временную e2e DB
@@ -25,3 +27,10 @@
 
 В репозитории добавлен workflow `.github/workflows/tests.yml`.
 Он запускается на `push` и `pull_request`, использует `make ci` и при падении прикладывает `frontend/playwright-report` и `frontend/test-results` как артефакты GitHub Actions.
+
+## Production deploy
+
+- Production-сборка выполняется корневым `Dockerfile`.
+- Контейнер стартует автоматически и слушает порт из переменной окружения `PORT`.
+- Для Render добавлен blueprint в `render.yaml`: web service на Docker и отдельная Postgres база.
+- После ручного деплоя добавьте сюда публичную ссылку на приложение.

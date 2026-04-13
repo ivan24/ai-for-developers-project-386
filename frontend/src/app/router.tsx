@@ -19,11 +19,11 @@ export const router = createBrowserRouter([
         element: <BookEventPage />,
       },
       {
-        path: "owner/event-types",
+        path: "dashboard/event-types",
         element: <OwnerEventTypesPage />,
       },
       {
-        path: "owner/bookings",
+        path: "dashboard/bookings",
         element: <OwnerBookingsPage />,
       },
     ],

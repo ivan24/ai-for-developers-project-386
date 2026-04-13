@@ -40,7 +40,7 @@ export const HomePage = () => {
               Add an event type in the owner section and it will immediately
               appear here for guests.
             </Text>
-            <Button component={Link} to="/owner/event-types" variant="light">
+            <Button component={Link} to="/dashboard/event-types" variant="light">
               Go to owner event types
             </Button>
           </Stack>

@@ -18,14 +18,14 @@ const navItems = [
     match: (pathname: string) => pathname === "/" || pathname.startsWith("/book/"),
   },
   {
-    to: "/owner/event-types",
+    to: "/dashboard/event-types",
     label: "Event types",
-    match: (pathname: string) => pathname === "/owner/event-types",
+    match: (pathname: string) => pathname === "/dashboard/event-types",
   },
   {
-    to: "/owner/bookings",
+    to: "/dashboard/bookings",
     label: "Bookings",
-    match: (pathname: string) => pathname === "/owner/bookings",
+    match: (pathname: string) => pathname === "/dashboard/bookings",
   },
 ];
 
