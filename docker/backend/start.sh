@@ -11,4 +11,8 @@ if [ ! -f vendor/autoload.php ]; then
   composer install --no-interaction
 fi
 
+if ! grep -Eq '^APP_KEY=.+$' .env; then
+  php artisan key:generate --force --no-interaction
+fi
+
 exec php-fpm

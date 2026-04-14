@@ -12,7 +12,7 @@ E2E_DB_NAME             := bookacall_e2e
 E2E_DB_VOLUME           := $(PROJECT_NAME)_db_e2e_data
 E2E_FRONTEND_ORIGIN     := http://localhost:5173
 
-.PHONY: help generate-openapi up down logs ps frontend-install frontend-build backend-install backend-composer-refresh backend-composer-update backend-key migrate seed migrate-seed backend-test backend-lint backend-lint-fix backend-analyse backend-qa infra-check prod-build prod-smoke prod-smoke-debug e2e-up e2e-prepare e2e-test e2e-clean-artifacts e2e-reset e2e-down e2e ci sh-frontend sh-backend
+.PHONY: help generate-openapi up down logs ps frontend-install frontend-build backend-install backend-composer-refresh backend-composer-update backend-key migrate seed migrate-seed backend-test backend-lint backend-lint-fix backend-analyse backend-qa infra-check prod-build prod-smoke prod-smoke-stateless prod-smoke-debug e2e-up e2e-prepare e2e-test e2e-clean-artifacts e2e-reset e2e-down e2e ci sh-frontend sh-backend
 
 ##@ OpenAPI
 
@@ -122,9 +122,29 @@ prod-smoke: prod-build ## Run the production image against the local dev databas
 					exit 1; \
 				fi; \
 			done; \
-			curl -fsS http://127.0.0.1:10000/public/event-types >/dev/null; \
-			docker rm -f $(PROJECT_NAME)-prod-smoke >/dev/null 2>&1 || true; \
+				curl -fsS http://127.0.0.1:10000/public/event-types >/dev/null; \
+				docker rm -f $(PROJECT_NAME)-prod-smoke >/dev/null 2>&1 || true; \
 		done
+
+prod-smoke-stateless: prod-build ## Run the production image without external APP_KEY/DB env and verify it boots on PORT
+	@set -eu; \
+		docker rm -f $(PROJECT_NAME)-prod-stateless >/dev/null 2>&1 || true; \
+		trap 'status=$$?; if [ $$status -ne 0 ]; then docker logs $(PROJECT_NAME)-prod-stateless 2>/dev/null || true; fi; docker rm -f $(PROJECT_NAME)-prod-stateless >/dev/null 2>&1 || true; exit $$status' EXIT INT TERM; \
+		docker run -d --rm \
+			--name $(PROJECT_NAME)-prod-stateless \
+			-p 10001:10001 \
+			-e PORT=10001 \
+			$(PROJECT_NAME)-prod >/dev/null; \
+		for attempt in 1 2 3 4 5 6 7 8 9 10; do \
+			if curl -fsS http://127.0.0.1:10001/up >/dev/null; then \
+				break; \
+			fi; \
+			sleep 2; \
+			if [ $$attempt -eq 10 ]; then \
+				exit 1; \
+			fi; \
+		done; \
+		curl -fsS http://127.0.0.1:10001/ >/dev/null
 
 prod-smoke-debug: prod-build ## Run the production image against the local dev database and print container diagnostics
 	@set -eu; \
