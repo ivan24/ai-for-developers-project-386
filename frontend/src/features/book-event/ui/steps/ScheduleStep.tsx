@@ -1,6 +1,7 @@
 import { Alert, Button, Group, Paper, SimpleGrid, Stack, Text, Title } from "@mantine/core";
 import { DatePicker } from "@mantine/dates";
 import { useMediaQuery } from "@mantine/hooks";
+import { BookingProgressCompact } from "@/features/book-event/ui/BookingProgressCompact";
 import type { Slot } from "@/shared/api/types";
 import { formatTime } from "@/shared/lib/format";
 import {
@@ -9,6 +10,7 @@ import {
 } from "@/shared/ui/page-state/PageState";
 
 interface ScheduleStepProps {
+  activeStep?: number;
   selectedDate: string | null;
   onDateChange: (value: string | null) => void;
   slots: Slot[];
@@ -19,6 +21,7 @@ interface ScheduleStepProps {
 }
 
 export const ScheduleStep = ({
+  activeStep = 0,
   selectedDate,
   onDateChange,
   slots,
@@ -31,33 +34,48 @@ export const ScheduleStep = ({
   const isPhone = useMediaQuery("(max-width: 30em)");
 
   return (
-    <Stack gap="lg" pt="md">
-      <div>
-        <Title order={3}>Choose a slot</Title>
-        <Text c="dimmed">
-          Start with a day. Matching time slots will appear right below the
-          calendar.
-        </Text>
-      </div>
+    <Stack gap="lg" pt={isTablet ? 0 : "md"}>
+      {!isTablet ? (
+        <div>
+          <Title order={3}>Choose a slot</Title>
+          <Text c="dimmed">
+            Start with a day. Matching time slots will appear right below the
+            calendar.
+          </Text>
+        </div>
+      ) : null}
 
       <Paper
         radius="xl"
         className="booking-date-layout booking-schedule-panel"
       >
         <Stack gap="lg">
-          <Group
-            justify="space-between"
-            align="flex-start"
-            gap="sm"
-            className="booking-schedule-header"
-          >
-            <div>
-              <Text className="section-kicker">Schedule</Text>
-              <Title order={isTablet ? 5 : 4}>Choose the date</Title>
-            </div>
-          </Group>
+          {isTablet ? (
+            <BookingProgressCompact
+              activeStep={activeStep}
+              totalSteps={2}
+              title="Choose the date"
+              embedded
+            />
+          ) : null}
 
-          <Text c="dimmed">Pick the day you want to book.</Text>
+          {!isTablet ? (
+            <>
+              <Group
+                justify="space-between"
+                align="flex-start"
+                gap="sm"
+                className="booking-schedule-header"
+              >
+                <div>
+                  <Text className="section-kicker">Schedule</Text>
+                  <Title order={isTablet ? 5 : 4}>Choose the date</Title>
+                </div>
+              </Group>
+
+              <Text c="dimmed">Pick the day you want to book.</Text>
+            </>
+          ) : null}
 
           <div className="booking-calendar-shell">
             <DatePicker
@@ -82,14 +100,16 @@ export const ScheduleStep = ({
             className="booking-schedule-header"
           >
             <div>
-              <Text className="section-kicker">Available times</Text>
+              {!isTablet ? <Text className="section-kicker">Available times</Text> : null}
               <Title order={isTablet ? 5 : 4}>Choose the time</Title>
             </div>
           </Group>
 
-          <Text c="dimmed">
-            Select one available time to continue to guest details.
-          </Text>
+          {!isTablet ? (
+            <Text c="dimmed">
+              Select one available time to continue to guest details.
+            </Text>
+          ) : null}
 
           {isLoading ? <LoadingState label="Loading slots..." /> : null}
           {isError ? (

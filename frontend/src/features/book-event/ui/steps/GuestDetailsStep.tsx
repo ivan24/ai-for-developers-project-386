@@ -1,7 +1,6 @@
-import { Alert, Stack, Text, TextInput, Title } from "@mantine/core";
+import { Alert, Stack, TextInput, Title } from "@mantine/core";
 import { type UseFormReturnType } from "@mantine/form";
 import type { Slot } from "@/shared/api/types";
-import { formatDateTime, formatTime } from "@/shared/lib/format";
 
 interface GuestDetailsStepProps {
   form: UseFormReturnType<{
@@ -9,13 +8,17 @@ interface GuestDetailsStepProps {
     guestEmail: string;
   }>;
   selectedSlot: Slot | null;
+  withTopSpacing?: boolean;
 }
 
-export const GuestDetailsStep = ({ form, selectedSlot }: GuestDetailsStepProps) => (
-  <Stack gap="lg" pt="md">
+export const GuestDetailsStep = ({
+  form,
+  selectedSlot,
+  withTopSpacing = true,
+}: GuestDetailsStepProps) => (
+  <Stack gap="lg" pt={withTopSpacing ? "md" : 0}>
     <div>
-      <Title order={3}>Enter guest details</Title>
-      <Text c="dimmed">This booking will be created without signing in.</Text>
+      <Title order={3}>Guest details</Title>
     </div>
 
     <TextInput
@@ -30,14 +33,10 @@ export const GuestDetailsStep = ({ form, selectedSlot }: GuestDetailsStepProps) 
       {...form.getInputProps("guestEmail")}
     />
 
-    {selectedSlot ? (
-      <Alert color="indigo" title="Booking summary">
-        {formatDateTime(selectedSlot.startAt)} - {formatTime(selectedSlot.endAt)}
-      </Alert>
-    ) : (
+    {!selectedSlot ? (
       <Alert color="gray" title="No slot selected">
         Go back to the previous step and choose a slot first.
       </Alert>
-    )}
+    ) : null}
   </Stack>
 );
