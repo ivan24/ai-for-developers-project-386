@@ -6,8 +6,9 @@ APP_ROOT=/var/www/html
 : "${PORT:=8080}"
 : "${APP_ENV:=production}"
 : "${APP_DEBUG:=false}"
+: "${BOOTSTRAP_DEMO_DATA:=false}"
 
-export APP_ENV APP_DEBUG
+export APP_ENV APP_DEBUG BOOTSTRAP_DEMO_DATA
 
 if [ -z "${APP_KEY:-}" ]; then
   APP_KEY="$(php -r 'echo "base64:".base64_encode(random_bytes(32));')"
@@ -69,6 +70,10 @@ else
     attempt=$((attempt + 1))
     sleep 3
   done
+fi
+
+if [ "${BOOTSTRAP_DEMO_DATA}" = "true" ]; then
+  php artisan app:seed-demo-if-empty --no-interaction
 fi
 
 php-fpm -D

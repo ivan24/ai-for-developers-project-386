@@ -33,4 +33,13 @@
 - Production-сборка выполняется корневым `Dockerfile`.
 - Контейнер стартует автоматически и слушает порт из переменной окружения `PORT`.
 - Для Render добавлен blueprint в `render.yaml`: web service на Docker и отдельная Postgres база.
-- После ручного деплоя добавьте сюда публичную ссылку на приложение.
+- Первый деплой делается через Render `New + -> Blueprint`, выбрав этот репозиторий и корневой `render.yaml`.
+- Blueprint привязывает сервис к ветке `main`; после первого создания обычный релиз делается push/merge в `main`.
+- В `render.yaml` включён `autoDeployTrigger: commit`, поэтому каждый новый коммит в `main` запускает новый deploy автоматически.
+- Production web service и Postgres зафиксированы в одном регионе `oregon`.
+- В `render.yaml` включён `buildFilter`, поэтому изменения только в `README`, `plans` или `docs` не должны вызывать лишний автодеплой приложения.
+- На первом старте Render передаёт `BOOTSTRAP_DEMO_DATA=true`; после миграций приложение выполнит `php artisan app:seed-demo-if-empty` и заполнит пустую базу demo-данными. Если в базе уже есть event types или bookings, seed будет пропущен.
+- После создания Blueprint проверьте:
+  - `https://<your-service>.onrender.com/up`
+  - `https://<your-service>.onrender.com/public/event-types`
+- После первого успешного деплоя добавьте сюда публичную ссылку на приложение.

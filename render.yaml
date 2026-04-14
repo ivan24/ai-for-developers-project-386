@@ -3,15 +3,27 @@ databases:
     databaseName: bookacall
     user: bookacall
     plan: free
+    region: oregon
 
 services:
   - type: web
     name: book-a-call
     runtime: docker
     plan: free
+    region: oregon
+    branch: main
+    autoDeployTrigger: commit
     dockerfilePath: ./Dockerfile
     dockerContext: .
     healthCheckPath: /up
+    buildFilter:
+      paths:
+        - Dockerfile
+        - .dockerignore
+        - render.yaml
+        - backend/**
+        - frontend/**
+        - docker/**
     envVars:
       - key: APP_ENV
         value: production
@@ -29,3 +41,5 @@ services:
           property: connectionString
       - key: QUEUE_CONNECTION
         value: sync
+      - key: BOOTSTRAP_DEMO_DATA
+        value: "true"

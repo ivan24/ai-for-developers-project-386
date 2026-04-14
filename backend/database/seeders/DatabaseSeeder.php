@@ -18,10 +18,6 @@ class DatabaseSeeder extends Seeder
         EventType::query()->delete();
         Owner::query()->delete();
 
-        $this->call([
-            OwnerSeeder::class,
-            EventTypeSeeder::class,
-            BookingSeeder::class,
-        ]);
+        $this->call(DemoDataSeeder::class);
     }
 }
