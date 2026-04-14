@@ -93,6 +93,42 @@ a {
   top: 96px;
 }
 
+.booking-page-grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.booking-page-sidebar,
+.booking-page-main {
+  min-width: 0;
+}
+
+.booking-event-summary {
+  overflow: hidden;
+}
+
+.booking-summary-copy {
+  max-width: 18rem;
+}
+
+.booking-summary-title {
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+}
+
+.booking-summary-fact {
+  border: 1px solid rgba(22, 37, 61, 0.08);
+  background: rgba(247, 250, 255, 0.84);
+}
+
+.booking-summary-note {
+  max-width: 26rem;
+}
+
+.booking-flow-card {
+  min-height: 100%;
+}
+
 .page-shell {
   padding-top: clamp(1.5rem, 3vw, 2.5rem);
   padding-bottom: 3rem;
@@ -131,8 +167,23 @@ a {
     linear-gradient(180deg, rgba(250, 252, 255, 0.96), rgba(244, 248, 255, 0.9));
 }
 
+.booking-calendar-shell {
+  display: flex;
+  justify-content: center;
+  padding: 0.5rem 0;
+  overflow-x: auto;
+}
+
 .booking-schedule-panel {
   height: 100%;
+}
+
+.booking-schedule-header {
+  flex-wrap: wrap;
+}
+
+.booking-schedule-badge {
+  flex-shrink: 0;
 }
 
 .booking-date-summary {
@@ -152,6 +203,10 @@ a {
   justify-content: space-between;
 }
 
+.booking-navigation {
+  gap: 0.75rem;
+}
+
 .empty-state {
   text-align: center;
 }
@@ -159,5 +214,28 @@ a {
 @media (max-width: 75em) {
   .booking-summary-card {
     position: static;
+  }
+}
+
+@media (min-width: 62em) {
+  .booking-page-grid {
+    grid-template-columns: minmax(16rem, 19rem) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+@media (max-width: 48em) {
+  .booking-summary-copy {
+    max-width: 100%;
+  }
+
+  .booking-summary-note {
+    max-width: none;
+  }
+
+  .booking-calendar-shell {
+    justify-content: flex-start;
+    margin-inline: -0.25rem;
+    padding: 0.25rem;
   }
 }

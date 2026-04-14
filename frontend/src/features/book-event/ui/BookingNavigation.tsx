@@ -24,10 +24,17 @@ export const BookingNavigation = ({
   }
 
   return (
-    <Group justify="space-between">
-      <Button variant="default" disabled={activeStep === 0} onClick={onBack}>
-        Back
-      </Button>
+    <Group
+      justify={activeStep === 0 ? "flex-end" : "space-between"}
+      className="booking-navigation"
+      wrap="nowrap"
+      grow={activeStep > 0}
+    >
+      {activeStep > 0 ? (
+        <Button variant="default" onClick={onBack}>
+          Back
+        </Button>
+      ) : null}
 
       {activeStep === 0 ? (
         <Button

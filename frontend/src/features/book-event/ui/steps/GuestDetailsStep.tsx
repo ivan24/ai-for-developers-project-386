@@ -12,7 +12,7 @@ interface GuestDetailsStepProps {
 }
 
 export const GuestDetailsStep = ({ form, selectedSlot }: GuestDetailsStepProps) => (
-  <Stack gap="lg" pt="xl">
+  <Stack gap="lg" pt="md">
     <div>
       <Title order={3}>Enter guest details</Title>
       <Text c="dimmed">This booking will be created without signing in.</Text>

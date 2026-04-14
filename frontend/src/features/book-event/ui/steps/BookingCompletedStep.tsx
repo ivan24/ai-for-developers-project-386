@@ -12,7 +12,7 @@ export const BookingCompletedStep = ({
   createdBooking,
   onBookAnother,
 }: BookingCompletedStepProps) => (
-  <Stack gap="lg" pt="xl">
+  <Stack gap="lg" pt="md">
     <Alert data-testid="booking-confirmed-alert" color="teal" title="Booking confirmed">
       {createdBooking ? (
         <>
