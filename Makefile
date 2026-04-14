@@ -29,7 +29,7 @@ generate-openapi: ## Generate docs/openapi.yaml from docs/calendar.tsp
 ##@ Docker
 
 up: frontend-install backend-install ## Start dev containers
-	$(DOCKER_COMPOSE) up -d --build --remove-orphans
+	$(DOCKER_COMPOSE) up -d --build --remove-orphans frontend backend backend-web db
 
 down: ## Stop and remove dev containers
 	$(DOCKER_COMPOSE) down --remove-orphans
@@ -203,7 +203,7 @@ e2e: ## Run the main booking flow end-to-end with Playwright
 
 ci: ## Run the CI test suite in Docker
 	@set -eu; \
-	trap '$(MAKE) down' EXIT INT TERM; \
+	trap 'status=$$?; if [ $$status -ne 0 ]; then $(DOCKER_COMPOSE) logs --tail=120 backend backend-web db || true; fi; $(MAKE) down; exit $$status' EXIT INT TERM; \
 	$(MAKE) up; \
 	$(MAKE) backend-key; \
 	$(MAKE) migrate-seed; \
